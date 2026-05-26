@@ -1,0 +1,277 @@
+export type OrderStatus = "pending" | "confirmed" | "shipped" | "delivered" | "cancelled" | "return_initiated";
+
+export interface OrderItem {
+  id: string;
+  name: string;
+  brand: string;
+  quantity: number;
+  price: number;
+}
+
+export interface Order {
+  id: string;
+  orderNumber: string;
+  date: string;
+  items: OrderItem[];
+  itemCount: number;
+  total: number;
+  gst: number;
+  subtotal: number;
+  discount: number;
+  status: OrderStatus;
+  trackingNumber?: string;
+  estimatedDelivery?: string;
+  deliveryDate?: string;
+  invoiceUrl: string;
+  notes?: string;
+}
+
+export const mockOrders: Order[] = [
+  {
+    id: "ord_001",
+    orderNumber: "ORD-2024-001",
+    date: "2024-05-15",
+    items: [
+      { id: "p1", name: "Engine Oil Filter", brand: "Bosch", quantity: 10, price: 349 },
+      { id: "p2", name: "Air Filter", brand: "Mann", quantity: 5, price: 299 },
+    ],
+    itemCount: 15,
+    subtotal: 5485,
+    discount: 822.75,
+    gst: 751.48,
+    total: 5413.73,
+    status: "delivered",
+    deliveryDate: "2024-05-20",
+    invoiceUrl: "/invoices/ORD-2024-001.pdf",
+    trackingNumber: "TRK123456",
+  },
+  {
+    id: "ord_002",
+    orderNumber: "ORD-2024-002",
+    date: "2024-05-18",
+    items: [
+      { id: "p3", name: "Brake Pad Set", brand: "Brembo", quantity: 3, price: 1299 },
+      { id: "p4", name: "Disc Rotor", brand: "TRW", quantity: 3, price: 899 },
+    ],
+    itemCount: 6,
+    subtotal: 6594,
+    discount: 1488.6,
+    gst: 918.29,
+    total: 6023.69,
+    status: "shipped",
+    estimatedDelivery: "2024-05-28",
+    invoiceUrl: "/invoices/ORD-2024-002.pdf",
+    trackingNumber: "TRK789012",
+  },
+  {
+    id: "ord_003",
+    orderNumber: "ORD-2024-003",
+    date: "2024-05-20",
+    items: [
+      { id: "p5", name: "Spark Plugs Set", brand: "NGK", quantity: 20, price: 599 },
+    ],
+    itemCount: 20,
+    subtotal: 11980,
+    discount: 2876.2,
+    gst: 1665.48,
+    total: 10769.28,
+    status: "confirmed",
+    invoiceUrl: "/invoices/ORD-2024-003.pdf",
+  },
+  {
+    id: "ord_004",
+    orderNumber: "ORD-2024-004",
+    date: "2024-05-22",
+    items: [
+      { id: "p6", name: "Battery 60Ah", brand: "Exide", quantity: 2, price: 4200 },
+    ],
+    itemCount: 2,
+    subtotal: 8400,
+    discount: 1932,
+    gst: 1166.04,
+    total: 7634.04,
+    status: "pending",
+    invoiceUrl: "/invoices/ORD-2024-004.pdf",
+  },
+  {
+    id: "ord_005",
+    orderNumber: "ORD-2024-005",
+    date: "2024-05-12",
+    items: [
+      { id: "p7", name: "Water Pump", brand: "Kirloskar", quantity: 1, price: 2899 },
+      { id: "p8", name: "Radiator", brand: "Modine", quantity: 1, price: 2599 },
+    ],
+    itemCount: 2,
+    subtotal: 5498,
+    discount: 1489.46,
+    gst: 763.13,
+    total: 4771.67,
+    status: "delivered",
+    deliveryDate: "2024-05-18",
+    invoiceUrl: "/invoices/ORD-2024-005.pdf",
+    trackingNumber: "TRK345678",
+  },
+  {
+    id: "ord_006",
+    orderNumber: "ORD-2024-006",
+    date: "2024-05-21",
+    items: [
+      { id: "p9", name: "Alternator", brand: "Bosch", quantity: 1, price: 5999 },
+    ],
+    itemCount: 1,
+    subtotal: 5999,
+    discount: 1499.75,
+    gst: 833.49,
+    total: 5332.74,
+    status: "pending",
+    invoiceUrl: "/invoices/ORD-2024-006.pdf",
+  },
+  {
+    id: "ord_007",
+    orderNumber: "ORD-2024-007",
+    date: "2024-05-10",
+    items: [
+      { id: "p10", name: "Suspension Spring", brand: "TRW", quantity: 4, price: 1899 },
+    ],
+    itemCount: 4,
+    subtotal: 7596,
+    discount: 1519.2,
+    gst: 1055.26,
+    total: 7131.06,
+    status: "delivered",
+    deliveryDate: "2024-05-16",
+    invoiceUrl: "/invoices/ORD-2024-007.pdf",
+    trackingNumber: "TRK567890",
+  },
+  {
+    id: "ord_008",
+    orderNumber: "ORD-2024-008",
+    date: "2024-05-08",
+    items: [
+      { id: "p11", name: "Clutch Kit", brand: "Valeo", quantity: 2, price: 3499 },
+    ],
+    itemCount: 2,
+    subtotal: 6998,
+    discount: 1539.56,
+    gst: 973.57,
+    total: 6432.01,
+    status: "cancelled",
+    invoiceUrl: "/invoices/ORD-2024-008.pdf",
+    notes: "Cancelled due to out of stock",
+  },
+  {
+    id: "ord_009",
+    orderNumber: "ORD-2024-009",
+    date: "2024-05-14",
+    items: [
+      { id: "p12", name: "AC Compressor", brand: "Sanden", quantity: 1, price: 6999 },
+    ],
+    itemCount: 1,
+    subtotal: 6999,
+    discount: 2099.7,
+    gst: 972.79,
+    total: 5872.09,
+    status: "shipped",
+    estimatedDelivery: "2024-05-26",
+    invoiceUrl: "/invoices/ORD-2024-009.pdf",
+    trackingNumber: "TRK890123",
+  },
+  {
+    id: "ord_010",
+    orderNumber: "ORD-2024-010",
+    date: "2024-05-19",
+    items: [
+      { id: "p13", name: "Fuel Pump", brand: "Bosch", quantity: 2, price: 4499 },
+    ],
+    itemCount: 2,
+    subtotal: 8998,
+    discount: 2519.44,
+    gst: 1250.18,
+    total: 7728.74,
+    status: "confirmed",
+    invoiceUrl: "/invoices/ORD-2024-010.pdf",
+  },
+  {
+    id: "ord_011",
+    orderNumber: "ORD-2024-011",
+    date: "2024-05-06",
+    items: [
+      { id: "p14", name: "Starter Motor", brand: "Nippon Denso", quantity: 1, price: 3299 },
+      { id: "p15", name: "Alternator Belt", brand: "Gates", quantity: 2, price: 599 },
+    ],
+    itemCount: 3,
+    subtotal: 4497,
+    discount: 809.46,
+    gst: 624.87,
+    total: 4312.41,
+    status: "delivered",
+    deliveryDate: "2024-05-12",
+    invoiceUrl: "/invoices/ORD-2024-011.pdf",
+    trackingNumber: "TRK012345",
+  },
+  {
+    id: "ord_012",
+    orderNumber: "ORD-2024-012",
+    date: "2024-05-17",
+    items: [
+      { id: "p16", name: "Door Handle Assembly", brand: "OEM", quantity: 8, price: 799 },
+    ],
+    itemCount: 8,
+    subtotal: 6392,
+    discount: 767.04,
+    gst: 888.91,
+    total: 6514.87,
+    status: "return_initiated",
+    invoiceUrl: "/invoices/ORD-2024-012.pdf",
+    notes: "Return initiated - Defective product",
+  },
+  {
+    id: "ord_013",
+    orderNumber: "ORD-2024-013",
+    date: "2024-05-23",
+    items: [
+      { id: "p17", name: "Front Bumper", brand: "OEM", quantity: 1, price: 3499 },
+      { id: "p18", name: "Side Mirror", brand: "Fiem", quantity: 2, price: 1299 },
+    ],
+    itemCount: 3,
+    subtotal: 6097,
+    discount: 1024.54,
+    gst: 847.77,
+    total: 5920.23,
+    status: "pending",
+    invoiceUrl: "/invoices/ORD-2024-013.pdf",
+  },
+  {
+    id: "ord_014",
+    orderNumber: "ORD-2024-014",
+    date: "2024-05-11",
+    items: [
+      { id: "p19", name: "Windshield Wipers", brand: "Bosch", quantity: 15, price: 499 },
+    ],
+    itemCount: 15,
+    subtotal: 7485,
+    discount: 2095.8,
+    gst: 1039.26,
+    total: 6428.46,
+    status: "delivered",
+    deliveryDate: "2024-05-17",
+    invoiceUrl: "/invoices/ORD-2024-014.pdf",
+    trackingNumber: "TRK234567",
+  },
+  {
+    id: "ord_015",
+    orderNumber: "ORD-2024-015",
+    date: "2024-05-24",
+    items: [
+      { id: "p20", name: "Cabin Air Filter", brand: "Mann", quantity: 12, price: 399 },
+      { id: "p21", name: "Engine Oil 5L", brand: "Castrol", quantity: 5, price: 899 },
+    ],
+    itemCount: 17,
+    subtotal: 9783,
+    discount: 3228.39,
+    gst: 1358.71,
+    total: 7913.32,
+    status: "confirmed",
+    invoiceUrl: "/invoices/ORD-2024-015.pdf",
+  },
+];
