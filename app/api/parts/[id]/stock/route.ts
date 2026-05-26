@@ -39,10 +39,11 @@ const mockStockData: Record<string, StockData> = {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const partId = params.id;
+    const { id } = await params;
+    const partId = id;
 
     // Get stock data
     const stock = mockStockData[partId];
