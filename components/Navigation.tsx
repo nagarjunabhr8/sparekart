@@ -4,10 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Menu, X, ShoppingCart, User } from "lucide-react";
+import { Menu, X, ShoppingCart } from "lucide-react";
 import { useAuth } from "@/lib/authContext";
 import { useCartStore } from "@/stores/cartStore";
 import CartDrawer from "./B2B/CartDrawer";
+import ProfileDropdown from "./ProfileDropdown";
 
 interface NavigationProps {
   portal: "b2c" | "b2b";
@@ -99,27 +100,27 @@ export default function Navigation({ portal }: NavigationProps) {
           {/* Right Actions */}
           <div className="flex items-center gap-4">
             {portal === "b2b" && (
-              <button
-                onClick={() => setCartDrawerOpen(true)}
-                className={`relative p-2 text-neutral-600 hover:text-primary transition-colors ${
-                  animate ? "animate-bounce" : ""
-                }`}
-              >
-                <ShoppingCart size={20} />
-                {cartItems > 0 && (
-                  <span
-                    className={`absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold transition-transform ${
-                      animate ? "scale-125" : "scale-100"
-                    }`}
-                  >
-                    {cartItems}
-                  </span>
-                )}
-              </button>
+              <>
+                <button
+                  onClick={() => setCartDrawerOpen(true)}
+                  className={`relative p-2 text-neutral-600 hover:text-primary transition-colors ${
+                    animate ? "animate-bounce" : ""
+                  }`}
+                >
+                  <ShoppingCart size={20} />
+                  {cartItems > 0 && (
+                    <span
+                      className={`absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold transition-transform ${
+                        animate ? "scale-125" : "scale-100"
+                      }`}
+                    >
+                      {cartItems}
+                    </span>
+                  )}
+                </button>
+                <ProfileDropdown />
+              </>
             )}
-            <button className="p-2 text-neutral-600 hover:text-primary transition-colors hidden sm:block">
-              <User size={20} />
-            </button>
 
             {/* Mobile Menu Button */}
             <button

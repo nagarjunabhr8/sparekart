@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { PartProduct } from "@/lib/mockData";
-import { Star, ShoppingCart, Check, AlertCircle, Bell } from "lucide-react";
+import { Star, ShoppingCart, Check, AlertCircle, Bell, Heart } from "lucide-react";
 import { useCartStore } from "@/stores/cartStore";
+import { useWishlistStore } from "@/stores/wishlistStore";
 import toast from "react-hot-toast";
 import StockBadge from "@/components/catalog/StockBadge";
 import StockNotifyModal from "@/components/catalog/StockNotifyModal";
@@ -17,6 +18,30 @@ export default function ProductCard({ product, view = "grid" }: ProductCardProps
   const [isAdding, setIsAdding] = useState(false);
   const [showNotifyModal, setShowNotifyModal] = useState(false);
   const { addItem } = useCartStore();
+  const { toggleItem, isWishlisted } = useWishlistStore();
+  const isInWishlist = isWishlisted(product.id);
+
+  const handleToggleWishlist = () => {
+    toggleItem({
+      id: product.id,
+      name: product.name,
+      brand: product.brand,
+      category: product.category,
+      price: product.price,
+      originalPrice: product.originalPrice,
+      image: product.image,
+      inStock: product.inStock,
+      stockCount: product.stockCount,
+      compatibility: product.compatibility,
+      rating: product.rating,
+      reviews: product.reviews,
+      discount: product.discount,
+      genuine: product.genuine,
+      savedPrice: product.price,
+      addedAt: new Date().toISOString(),
+    });
+    toast.success(isInWishlist ? "Removed from wishlist" : "Added to wishlist");
+  };
 
   const handleAddToCart = async () => {
     setIsAdding(true);
@@ -36,12 +61,30 @@ export default function ProductCard({ product, view = "grid" }: ProductCardProps
     return (
       <div className="card p-4 md:p-6 border border-slate-200 hover:shadow-lg transition-shadow flex gap-4">
         {/* Image */}
-        <div className="flex-shrink-0 w-24 h-24 md:w-32 md:h-32 bg-slate-100 rounded-lg overflow-hidden">
+        <div className="flex-shrink-0 w-24 h-24 md:w-32 md:h-32 bg-slate-100 rounded-lg overflow-hidden relative group">
           <img
             src={product.image}
             alt={product.name}
             className="w-full h-full object-cover"
           />
+          {/* Wishlist Heart for List View */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              handleToggleWishlist();
+            }}
+            className="absolute top-1 right-1 p-1 bg-white/80 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-colors opacity-0 group-hover:opacity-100"
+            title={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+          >
+            <Heart
+              size={14}
+              className={
+                isInWishlist
+                  ? "fill-orange-500 text-orange-500"
+                  : "text-neutral-400 hover:text-orange-400"
+              }
+            />
+          </button>
         </div>
 
         {/* Details */}
@@ -137,6 +180,24 @@ export default function ProductCard({ product, view = "grid" }: ProductCardProps
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
+        {/* Wishlist Heart Icon */}
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            handleToggleWishlist();
+          }}
+          className="absolute top-2 right-2 z-10 p-1.5 bg-white/80 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-colors"
+          title={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+        >
+          <Heart
+            size={16}
+            className={
+              isInWishlist
+                ? "fill-orange-500 text-orange-500"
+                : "text-neutral-400 hover:text-orange-400"
+            }
+          />
+        </button>
         {/* Badges */}
         <div className="absolute top-3 left-3 right-3 flex gap-2 flex-wrap">
           {product.discount > 0 && (

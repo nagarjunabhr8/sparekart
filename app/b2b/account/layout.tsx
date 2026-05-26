@@ -11,6 +11,7 @@ import {
   Bell,
   Lock,
   LogOut,
+  Heart,
 } from "lucide-react";
 import { useAuth } from "@/lib/authContext";
 
@@ -20,6 +21,7 @@ const accountTabs = [
   { href: "/b2b/account/team", label: "Team Members", icon: Users },
   { href: "/b2b/account/payment", label: "Payment Methods", icon: CreditCard },
   { href: "/b2b/account/history", label: "Order History", icon: History },
+  { href: "/b2b/account/wishlist", label: "My Wishlist", icon: Heart },
   { href: "/b2b/account/notifications", label: "Notifications", icon: Bell },
   { href: "/b2b/account/security", label: "Security", icon: Lock },
 ];
