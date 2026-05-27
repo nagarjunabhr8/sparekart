@@ -12,6 +12,7 @@ export interface JWTPayload {
   role?: "admin" | "user";
   iat?: number;
   exp?: number;
+  [key: string]: unknown;
 }
 
 export async function signJWT(payload: JWTPayload): Promise<string> {
@@ -28,7 +29,7 @@ export async function verifyJWT(token: string): Promise<JWTPayload | null> {
   try {
     const verified = await jwtVerify(token, JWT_SECRET);
     return verified.payload as JWTPayload;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
