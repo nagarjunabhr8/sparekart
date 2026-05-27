@@ -37,6 +37,31 @@ export interface TimelineEvent {
   description?: string;
 }
 
+export interface TrackingStep {
+  id: string;
+  name: string;
+  timestamp?: string;
+  location?: string;
+  completed: boolean;
+  current: boolean;
+}
+
+export interface CourierInfo {
+  id: string;
+  name: string;
+  logo: string;
+  trackingNumber: string;
+  trackingUrl: string;
+  contactNumber?: string;
+}
+
+export interface TrackingLocation {
+  latitude: number;
+  longitude: number;
+  address: string;
+  timestamp: string;
+}
+
 export interface Order {
   id: string;
   orderNumber: string;
@@ -57,6 +82,10 @@ export interface Order {
   deliveryAddress?: DeliveryAddress;
   paymentInfo?: PaymentInfo;
   timeline?: TimelineEvent[];
+  courier?: CourierInfo;
+  trackingSteps?: TrackingStep[];
+  currentLocation?: TrackingLocation;
+  customerPhone?: string;
 }
 
 export const mockOrders: Order[] = [
@@ -102,6 +131,30 @@ export const mockOrders: Order[] = [
       { id: "t4", event: "Out for Delivery", timestamp: "2024-05-20T06:00:00Z", status: "out_for_delivery", description: "Order out for delivery" },
       { id: "t5", event: "Delivered", timestamp: "2024-05-20T16:30:00Z", status: "delivered", description: "Order delivered successfully" },
     ],
+    courier: {
+      id: "courier_001",
+      name: "SpareKart Express",
+      logo: "https://via.placeholder.com/40?text=SKX",
+      trackingNumber: "TRK123456",
+      trackingUrl: "https://track.sparekart.com/TRK123456",
+      contactNumber: "+91-8765432100",
+    },
+    trackingSteps: [
+      { id: "step_1", name: "Order Placed", timestamp: "2024-05-15T10:00:00Z", location: "Bangalore Warehouse", completed: true, current: false },
+      { id: "step_2", name: "Order Confirmed", timestamp: "2024-05-15T11:00:00Z", location: "Processing Center, Bangalore", completed: true, current: false },
+      { id: "step_3", name: "Packed & Ready", timestamp: "2024-05-16T14:00:00Z", location: "Warehouse, Bangalore", completed: true, current: false },
+      { id: "step_4", name: "Picked Up by Courier", timestamp: "2024-05-17T08:00:00Z", location: "SpareKart Express Hub, Bangalore", completed: true, current: false },
+      { id: "step_5", name: "In Transit", timestamp: "2024-05-19T06:00:00Z", location: "Krishnarajapuram Hub", completed: true, current: false },
+      { id: "step_6", name: "Out for Delivery", timestamp: "2024-05-20T06:00:00Z", location: "Local Delivery Hub", completed: true, current: false },
+      { id: "step_7", name: "Delivered", timestamp: "2024-05-20T16:30:00Z", location: "456 Mechanic Street, Bangalore", completed: true, current: false },
+    ],
+    currentLocation: {
+      latitude: 12.9716,
+      longitude: 77.5946,
+      address: "Krishnarajapuram Hub, Bangalore",
+      timestamp: "2024-05-19T06:00:00Z",
+    },
+    customerPhone: "+91-9876543210",
   },
   {
     id: "ord_002",
