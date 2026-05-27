@@ -218,7 +218,7 @@ interface RouteContext {
   params: Promise<{ id: string }>;
 }
 
-export async function GET(request: Request, context: RouteContext) {
+export async function GET(_request: Request, context: RouteContext) {
   try {
     const params = await context.params;
     const orderId = params.id;
