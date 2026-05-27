@@ -12,6 +12,10 @@ interface TeamMember {
   spendLimitPerMonth?: number;
 }
 
+interface RouteContext {
+  params: Promise<{ id: string }>;
+}
+
 // Mock team members database
 const teamMembersDatabase: Record<string, TeamMember[]> = {
   biz_default: [
@@ -48,9 +52,10 @@ const teamMembersDatabase: Record<string, TeamMember[]> = {
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  context: RouteContext
 ) {
   try {
+    const params = await context.params;
     const body = await request.json();
     const { role, status, spendLimitPerOrder, spendLimitPerMonth } = body;
 
@@ -113,9 +118,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  context: RouteContext
 ) {
   try {
+    const params = await context.params;
     const businessId = "biz_default";
     const members = teamMembersDatabase[businessId] || [];
 
