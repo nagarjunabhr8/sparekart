@@ -36,6 +36,9 @@ export default function Navigation({ portal }: NavigationProps) {
     }
   }, [cartItems]);
 
+  // Only treat user as authenticated after client-side mount to avoid hydration mismatch
+  const showAuthLinks = mounted && isAuthenticated;
+
   const navLinks =
     portal === "b2c"
       ? [
@@ -46,9 +49,16 @@ export default function Navigation({ portal }: NavigationProps) {
         ]
       : [
           { href: "/b2b", label: "Home" },
-          { href: "/b2b/catalog", label: "Catalog" },
-          { href: "/b2b/orders", label: "Orders" },
-          { href: isAuthenticated ? "/b2b/account" : "/b2b/login", label: "Account" },
+          ...(showAuthLinks
+            ? [
+                { href: "/b2b/catalog", label: "Catalog" },
+                { href: "/b2b/orders", label: "Orders" },
+                { href: "/b2b/account", label: "Account" },
+              ]
+            : [
+                { href: "/b2b/login", label: "Login" },
+                { href: "/b2b/register", label: "Register" },
+              ]),
         ];
 
   return (
