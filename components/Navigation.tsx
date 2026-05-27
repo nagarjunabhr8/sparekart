@@ -108,7 +108,7 @@ export default function Navigation({ portal }: NavigationProps) {
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {portal === "b2b" && (
               <>
                 <button
@@ -129,6 +129,30 @@ export default function Navigation({ portal }: NavigationProps) {
                   )}
                 </button>
                 <ProfileDropdown />
+                {mounted && !isAuthenticated && (
+                  <div className="flex md:hidden items-center gap-1.5">
+                    <Link
+                      href="/b2b/login"
+                      className={`text-xs font-semibold px-2.5 py-1.5 rounded-md border transition-colors ${
+                        pathname.startsWith("/b2b/login")
+                          ? "bg-secondary text-white border-secondary"
+                          : "text-neutral-700 hover:text-secondary border-neutral-300 bg-white"
+                      }`}
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      href="/b2b/register"
+                      className={`text-xs font-semibold px-2.5 py-1.5 rounded-md border transition-colors ${
+                        pathname.startsWith("/b2b/register")
+                          ? "bg-secondary text-white border-secondary"
+                          : "text-neutral-700 hover:text-secondary border-neutral-300 bg-white"
+                      }`}
+                    >
+                      Register
+                    </Link>
+                  </div>
+                )}
               </>
             )}
 
@@ -149,23 +173,32 @@ export default function Navigation({ portal }: NavigationProps) {
         {/* Mobile Navigation */}
         {mounted && isOpen && (
           <div className="md:hidden border-t border-neutral-200 py-4 space-y-3">
-            {navLinks.map((link) => {
-              const isActive = pathname === link.href || (link.href !== "/b2c" && link.href !== "/b2b" && pathname.startsWith(link.href));
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`block font-medium py-2 transition-colors ${
-                    isActive
-                      ? "text-primary border-l-4 border-primary pl-3"
-                      : "text-neutral-600 hover:text-primary"
-                  }`}
-                  onClick={() => setIsOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
+            {navLinks
+              .filter(
+                (link) =>
+                  !(
+                    portal === "b2b" &&
+                    !isAuthenticated &&
+                    (link.href === "/b2b/login" || link.href === "/b2b/register")
+                  )
+              )
+              .map((link) => {
+                const isActive = pathname === link.href || (link.href !== "/b2c" && link.href !== "/b2b" && pathname.startsWith(link.href));
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`block font-medium py-2 pl-3 border-l-4 transition-colors ${
+                      isActive
+                        ? "text-primary border-primary"
+                        : "text-neutral-600 border-transparent hover:text-primary"
+                    }`}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
           </div>
         )}
       </div>
