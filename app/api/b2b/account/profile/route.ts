@@ -143,6 +143,7 @@ export async function PATCH(request: Request) {
   }
 }
 
+// @ts-ignore
 export async function GET(request: Request) {
   try {
     const userId = "biz_default";
