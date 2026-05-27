@@ -1,4 +1,5 @@
-export type OrderStatus = "pending" | "confirmed" | "shipped" | "delivered" | "cancelled" | "return_initiated";
+export type OrderStatus = "pending" | "confirmed" | "processing" | "shipped" | "out_for_delivery" | "delivered" | "cancelled" | "return_initiated";
+export type PaymentMethod = "credit_card" | "bank_transfer" | "upi" | "cheque";
 
 export interface OrderItem {
   id: string;
@@ -6,6 +7,34 @@ export interface OrderItem {
   brand: string;
   quantity: number;
   price: number;
+  returnedQuantity?: number;
+}
+
+export interface DeliveryAddress {
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+}
+
+export interface PaymentInfo {
+  method: PaymentMethod;
+  transactionId: string;
+  amount: number;
+  paidAt: string;
+  status: "completed" | "pending" | "failed";
+}
+
+export interface TimelineEvent {
+  id: string;
+  event: string;
+  timestamp: string;
+  status: OrderStatus;
+  description?: string;
 }
 
 export interface Order {
@@ -18,12 +47,16 @@ export interface Order {
   gst: number;
   subtotal: number;
   discount: number;
+  deliveryFee?: number;
   status: OrderStatus;
   trackingNumber?: string;
   estimatedDelivery?: string;
   deliveryDate?: string;
   invoiceUrl: string;
   notes?: string;
+  deliveryAddress?: DeliveryAddress;
+  paymentInfo?: PaymentInfo;
+  timeline?: TimelineEvent[];
 }
 
 export const mockOrders: Order[] = [
@@ -39,11 +72,36 @@ export const mockOrders: Order[] = [
     subtotal: 5485,
     discount: 822.75,
     gst: 751.48,
+    deliveryFee: 0,
     total: 5413.73,
     status: "delivered",
     deliveryDate: "2024-05-20",
     invoiceUrl: "/invoices/ORD-2024-001.pdf",
     trackingNumber: "TRK123456",
+    deliveryAddress: {
+      name: "Rajesh Kumar",
+      phone: "+91-9876543210",
+      email: "rajesh.kumar@example.com",
+      address: "456 Mechanic Street, Auto Repair Zone",
+      city: "Bangalore",
+      state: "Karnataka",
+      zipCode: "560001",
+      country: "India",
+    },
+    paymentInfo: {
+      method: "bank_transfer",
+      transactionId: "TXN-2024-05-15-001",
+      amount: 5413.73,
+      paidAt: "2024-05-15T10:30:00Z",
+      status: "completed",
+    },
+    timeline: [
+      { id: "t1", event: "Order Placed", timestamp: "2024-05-15T10:00:00Z", status: "pending", description: "Order confirmed by system" },
+      { id: "t2", event: "Confirmed", timestamp: "2024-05-15T11:00:00Z", status: "confirmed", description: "Order accepted and confirmed" },
+      { id: "t3", event: "Shipped", timestamp: "2024-05-17T08:00:00Z", status: "shipped", description: "Order dispatched from warehouse" },
+      { id: "t4", event: "Out for Delivery", timestamp: "2024-05-20T06:00:00Z", status: "out_for_delivery", description: "Order out for delivery" },
+      { id: "t5", event: "Delivered", timestamp: "2024-05-20T16:30:00Z", status: "delivered", description: "Order delivered successfully" },
+    ],
   },
   {
     id: "ord_002",
