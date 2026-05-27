@@ -37,12 +37,16 @@ const mockStockData: Record<string, StockData> = {
   },
 };
 
+interface RouteContext {
+  params: Promise<{ id: string }>;
+}
+
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: RouteContext
 ) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     const partId = id;
 
     // Get stock data

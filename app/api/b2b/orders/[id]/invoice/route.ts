@@ -214,8 +214,13 @@ function generateInvoiceHTML(order: typeof mockOrders[0]): string {
   `;
 }
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+interface RouteContext {
+  params: Promise<{ id: string }>;
+}
+
+export async function GET(request: Request, context: RouteContext) {
   try {
+    const params = await context.params;
     const orderId = params.id;
     const order = mockOrders.find((o) => o.id === orderId);
 

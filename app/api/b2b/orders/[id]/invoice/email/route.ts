@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 import { mockOrders } from "@/lib/mockOrders";
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+interface RouteContext {
+  params: Promise<{ id: string }>;
+}
+
+export async function POST(request: Request, context: RouteContext) {
   try {
+    const params = await context.params;
     const orderId = params.id;
     const { email } = await request.json();
 
