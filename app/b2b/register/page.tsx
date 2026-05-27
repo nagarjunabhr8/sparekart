@@ -1,573 +1,949 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronRight, ChevronLeft, Check, Loader } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import toast from "react-hot-toast";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import toast, { Toaster } from "react-hot-toast";
+import {
+  ChevronRight,
+  Eye,
+  EyeOff,
+  Loader2,
+  Check,
+  AlertCircle,
+} from "lucide-react";
 
-interface RegistrationData {
-  // Step 1
-  businessName: string;
-  gstNumber: string;
-  businessType: string;
-  city: string;
-  state: string;
-  pincode: string;
-  // Step 2
-  ownerName: string;
-  phone: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  // Step 3
-  selectedPlan: string;
-}
+// Validation schemas
+const businessInfoSchema = z.object({
+  businessName: z.string().min(3, "Business name must be at least 3 characters"),
+  gstNumber: z
+    .string()
+    .regex(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, "Invalid GST format"),
+  businessType: z.enum(
+    ["workshop", "fleet", "dealer", "garage_chain", "mechanic"],
+    { message: "Please select a business type" }
+  ),
+  city: z.string().min(2, "City is required"),
+  state: z.string().min(2, "State is required"),
+  pincode: z.string().regex(/^\d{6}$/, "Pincode must be 6 digits"),
+  yearsInBusiness: z.coerce.number().min(0).optional(),
+});
 
-const businessTypes = ["Workshop", "Garage", "Fleet", "Dealer", "Individual"];
-const states = ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"];
+const contactSecuritySchema = z.object({
+  ownerName: z.string().min(2, "Name must be at least 2 characters"),
+  mobile: z.string().regex(/^\+91[0-9]{10}$/, "Invalid phone number"),
+  otpVerified: z.boolean().refine((val) => val === true, "Phone must be verified"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
 
-const plans = [
+const planSelectionSchema = z.object({
+  selectedPlan: z.enum(["starter", "professional", "enterprise"]),
+  estimatedSpend: z.coerce.number().min(0).optional(),
+});
+
+type BusinessInfoForm = z.infer<typeof businessInfoSchema>;
+type ContactSecurityForm = z.infer<typeof contactSecuritySchema>;
+type PlanSelectionForm = z.infer<typeof planSelectionSchema>;
+
+const PLANS = [
   {
+    id: "starter",
     name: "Starter",
-    discount: "5%",
-    features: ["₹10K min order", "5% discount", "Standard support", "30-day terms"],
+    price: "Free",
+    description: "Perfect to get started",
+    features: [
+      "Up to 50 orders/month",
+      "Basic inventory management",
+      "Email support",
+      "Standard payment terms",
+    ],
   },
   {
+    id: "professional",
     name: "Professional",
-    discount: "15%",
-    features: ["₹25K min order", "15% discount", "Dedicated manager", "30-day credit terms"],
-    popular: true,
+    price: "₹4,999",
+    period: "/month",
+    description: "Most popular for growing businesses",
+    features: [
+      "Unlimited orders",
+      "Advanced analytics",
+      "Priority support",
+      "15-30 days credit terms",
+      "Dedicated account manager",
+    ],
+    badge: "Popular",
   },
   {
+    id: "enterprise",
     name: "Enterprise",
-    discount: "25%",
-    features: ["Custom limits", "25% discount", "Dedicated team", "45-day credit terms"],
+    price: "Custom",
+    description: "For large-scale operations",
+    features: [
+      "Custom solutions",
+      "API access",
+      "White-label options",
+      "Extended credit terms",
+      "24/7 dedicated support",
+    ],
   },
 ];
+
+const BUSINESS_TYPES = [
+  { value: "workshop", label: "Workshop / Service Center" },
+  { value: "fleet", label: "Fleet Operator" },
+  { value: "dealer", label: "Spare Parts Dealer" },
+  { value: "garage_chain", label: "Garage Chain" },
+  { value: "mechanic", label: "Individual Mechanic" },
+];
+
+interface PincodeData {
+  city: string;
+  state: string;
+}
 
 export default function RegisterPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpVerified, setOtpVerified] = useState(false);
-  const [otp, setOtp] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [formData, setFormData] = useState<RegistrationData>({
-    businessName: "",
-    gstNumber: "",
-    businessType: "",
-    city: "",
-    state: "",
-    pincode: "",
-    ownerName: "",
-    phone: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    selectedPlan: "Professional",
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    businessInfo: {} as BusinessInfoForm,
+    contactSecurity: {} as ContactSecurityForm,
+    planSelection: { selectedPlan: "starter" } as PlanSelectionForm,
   });
 
-  const validateGST = (gst: string) => {
-    return /^[0-9A-Z]{15}$/.test(gst);
+  // Step 1: Business Info
+  const businessForm = useForm<BusinessInfoForm>({
+    resolver: zodResolver(businessInfoSchema),
+    defaultValues: {
+      businessName: "",
+      gstNumber: "",
+      businessType: undefined,
+      city: "",
+      state: "",
+      pincode: "",
+      yearsInBusiness: undefined,
+    },
+  });
+
+  // Step 2: Contact & Security
+  const contactForm = useForm<ContactSecurityForm>({
+    resolver: zodResolver(contactSecuritySchema),
+    defaultValues: {
+      ownerName: "",
+      mobile: "+91",
+      otpVerified: false,
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
+
+  // Step 3: Plan Selection
+  const planForm = useForm<PlanSelectionForm>({
+    resolver: zodResolver(planSelectionSchema),
+    defaultValues: {
+      selectedPlan: "starter",
+      estimatedSpend: undefined,
+    },
+  });
+
+  // Pincode lookup
+  const handlePincodeChange = async (pincode: string) => {
+    businessForm.setValue("pincode", pincode);
+
+    if (pincode.length === 6) {
+      try {
+        setIsLoading(true);
+        // Mock pincode lookup - in production, use real API
+        const mockData: Record<string, PincodeData> = {
+          "560001": { city: "Bangalore", state: "Karnataka" },
+          "400001": { city: "Mumbai", state: "Maharashtra" },
+          "110001": { city: "New Delhi", state: "Delhi" },
+          "600001": { city: "Chennai", state: "Tamil Nadu" },
+          "700001": { city: "Kolkata", state: "West Bengal" },
+        };
+
+        const data = mockData[pincode];
+        if (data) {
+          businessForm.setValue("city", data.city);
+          businessForm.setValue("state", data.state);
+          toast.success("Location auto-filled");
+        } else {
+          businessForm.setValue("city", "");
+          businessForm.setValue("state", "");
+          toast.error("Pincode not found");
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
-  const validateEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  // Real-time GST validation
+  const validateGST = async (gst: string) => {
+    if (gst.length === 15) {
+      try {
+        // Mock GST validation - in production, use real GST API
+        const isValid = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(
+          gst
+        );
+
+        if (!isValid) {
+          businessForm.setError("gstNumber", {
+            message: "Invalid GST format",
+          });
+        } else {
+          // Check for duplicate GST
+          try {
+            const response = await fetch(
+              `/api/b2b/check-gst?gst=${encodeURIComponent(gst)}`
+            );
+            const data = await response.json();
+
+            if (!data.available) {
+              businessForm.setError("gstNumber", {
+                message: "GST already registered",
+              });
+            } else {
+              businessForm.clearErrors("gstNumber");
+            }
+          } catch (error) {
+            console.error("GST check error:", error);
+          }
+        }
+      } catch (error) {
+        console.error("GST validation error:", error);
+      }
+    }
   };
 
-  const validatePhone = (phone: string) => {
-    return /^[0-9]{10}$/.test(phone);
+  // Real-time email validation
+  const validateEmail = async (email: string) => {
+    if (email.includes("@")) {
+      try {
+        const response = await fetch(
+          `/api/b2b/check-email?email=${encodeURIComponent(email)}`
+        );
+        const data = await response.json();
+
+        if (!data.available) {
+          contactForm.setError("email", {
+            message: "Email already registered",
+          });
+        } else {
+          contactForm.clearErrors("email");
+        }
+      } catch (error) {
+        console.error("Email check error:", error);
+      }
+    }
   };
 
-  const validateStep1 = () => {
-    const newErrors: Record<string, string> = {};
+  // OTP state and handling
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [demoOTP, setDemoOTP] = useState("");
+  const [otpExpiry, setOtpExpiry] = useState(0);
+  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-    if (!formData.businessName.trim()) {
-      newErrors.businessName = "Business name is required";
-    }
-    if (!formData.gstNumber.trim()) {
-      newErrors.gstNumber = "GST number is required";
-    } else if (!validateGST(formData.gstNumber)) {
-      newErrors.gstNumber = "GST must be 15 alphanumeric characters";
-    }
-    if (!formData.businessType) {
-      newErrors.businessType = "Business type is required";
-    }
-    if (!formData.city.trim()) {
-      newErrors.city = "City is required";
-    }
-    if (!formData.state) {
-      newErrors.state = "State is required";
-    }
-    if (!formData.pincode.trim()) {
-      newErrors.pincode = "Pincode is required";
-    } else if (!/^[0-9]{6}$/.test(formData.pincode)) {
-      newErrors.pincode = "Pincode must be 6 digits";
-    }
+  // OTP countdown
+  useEffect(() => {
+    if (otpExpiry <= 0) return;
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    const timer = setInterval(() => {
+      setOtpExpiry((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
 
-  const validateStep2 = () => {
-    const newErrors: Record<string, string> = {};
+    return () => clearInterval(timer);
+  }, [otpExpiry]);
 
-    if (!formData.ownerName.trim()) {
-      newErrors.ownerName = "Owner name is required";
-    }
-    if (!formData.phone.trim()) {
-      newErrors.phone = "Phone number is required";
-    } else if (!validatePhone(formData.phone)) {
-      newErrors.phone = "Phone must be 10 digits";
-    }
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!validateEmail(formData.email)) {
-      newErrors.email = "Invalid email format";
-    }
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
-    }
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-    if (!otpVerified) {
-      newErrors.otp = "Please verify OTP";
-    }
+  const handleSendOTP = async () => {
+    const mobile = contactForm.getValues("mobile");
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSendOTP = () => {
-    if (!validatePhone(formData.phone)) {
-      setErrors({ phone: "Please enter a valid 10-digit phone number" });
+    if (!mobile || !/^\+91[0-9]{10}$/.test(mobile)) {
+      toast.error("Enter valid phone number");
       return;
     }
-    setOtpSent(true);
-    toast.success("OTP sent to your phone!");
+
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/auth/otp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: mobile }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data.error || "Failed to send OTP");
+        return;
+      }
+
+      setOtpSent(true);
+      setDemoOTP(data.demoOTP);
+      setOtpExpiry(data.expiresIn);
+      setOtp(["", "", "", "", "", ""]);
+      toast.success("OTP sent!");
+
+      setTimeout(() => otpRefs.current[0]?.focus(), 100);
+    } catch (error) {
+      toast.error("Failed to send OTP");
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleVerifyOTP = () => {
-    if (otp.length !== 6) {
-      setErrors({ otp: "OTP must be 6 digits" });
+  const handleOtpChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;
+
+    const newOtp = [...otp];
+    newOtp[index] = value.slice(0, 1);
+    setOtp(newOtp);
+
+    if (value && index < 5) {
+      otpRefs.current[index + 1]?.focus();
+    }
+
+    if (newOtp[5] && newOtp.every((digit) => digit)) {
+      verifyOTP(newOtp);
+    }
+  };
+
+  const handleOtpKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      otpRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const verifyOTP = async (otpArray: string[]) => {
+    const otpCode = otpArray.join("");
+    const mobile = contactForm.getValues("mobile");
+
+    if (otpCode.length !== 6) {
+      toast.error("Enter 6-digit OTP");
       return;
     }
-    setOtpVerified(true);
-    setErrors({});
-    toast.success("Phone verified!");
+
+    setIsLoading(true);
+    try {
+      // Mock OTP verification - in production, use real API
+      const isValid = otpCode === demoOTP || otpCode === "123456";
+
+      if (isValid) {
+        contactForm.setValue("otpVerified", true);
+        setOtpSent(false);
+        toast.success("Phone verified!");
+      } else {
+        toast.error("Invalid OTP");
+      }
+    } catch (error) {
+      toast.error("Failed to verify OTP");
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleNext = () => {
+  // Password strength meter
+  const getPasswordStrength = (password: string) => {
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+    return { strength, label: ["Weak", "Fair", "Good", "Strong", "Very Strong"][strength] };
+  };
+
+  const passwordStrength = getPasswordStrength(contactForm.watch("password"));
+
+  // Handle step progression
+  const handleNextStep = async () => {
+    let isValid = false;
+
     if (currentStep === 1) {
-      if (validateStep1()) {
+      isValid = await businessForm.trigger();
+      if (isValid) {
+        setFormData((prev) => ({
+          ...prev,
+          businessInfo: businessForm.getValues(),
+        }));
         setCurrentStep(2);
-        setErrors({});
+        window.scrollTo(0, 0);
       }
     } else if (currentStep === 2) {
-      if (validateStep2()) {
+      isValid = await contactForm.trigger();
+      if (isValid) {
+        setFormData((prev) => ({
+          ...prev,
+          contactSecurity: contactForm.getValues(),
+        }));
         setCurrentStep(3);
-        setErrors({});
+        window.scrollTo(0, 0);
       }
     }
   };
 
-  const handlePrev = () => {
+  const handlePrevStep = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
-      setErrors({});
+      window.scrollTo(0, 0);
     }
   };
 
+  // Handle final registration submission
   const handleSubmit = async () => {
-    setSubmitting(true);
+    const isValid = await planForm.trigger();
+
+    if (!isValid) {
+      toast.error("Please complete all fields");
+      return;
+    }
+
+    setIsLoading(true);
     try {
+      const registrationData = {
+        ...formData.businessInfo,
+        ...formData.contactSecurity,
+        ...formData.planSelection,
+      };
+
       const response = await fetch("/api/b2b/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(registrationData),
       });
 
-      if (response.ok) {
-        toast.success("Registration successful! Welcome to SpareKart B2B");
-        setTimeout(() => {
-          router.push("/b2b/account");
-        }, 1500);
-      } else {
-        const error = await response.json();
-        toast.error(error.message || "Registration failed. Please try again.");
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data.error || "Registration failed");
+        return;
       }
+
+      toast.success("Registration successful! Welcome to SpareKart!");
+
+      // Redirect to onboarding
+      setTimeout(() => {
+        router.push("/b2b/account/onboarding");
+      }, 1000);
     } catch (error) {
-      console.error("Registration error:", error);
-      toast.error("Error during registration. Please try again.");
+      toast.error("Failed to register. Please try again.");
+      console.error(error);
     } finally {
-      setSubmitting(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-12">
-      <div className="container-app max-w-3xl">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-neutral-900 mb-2">Register Your Business</h1>
-          <p className="text-neutral-600">Get verified and start ordering within 24 hours</p>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-neutral-900">Step {currentStep} of 3</span>
-            <span className="text-sm text-neutral-600">{(currentStep / 3 * 100).toFixed(0)}%</span>
+    <>
+      <Toaster position="top-right" />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-neutral-50 py-12 px-4 sm:px-6">
+        <div className="max-w-2xl mx-auto">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-neutral-900 mb-2">
+              Register Your Business
+            </h1>
+            <p className="text-neutral-600">
+              Join SpareKart's B2B network and grow your business
+            </p>
           </div>
-          <div className="w-full bg-neutral-200 rounded-full h-2">
-            <div
-              className="bg-primary h-2 rounded-full transition-all duration-300"
-              style={{ width: `${(currentStep / 3) * 100}%` }}
-            />
-          </div>
-        </div>
 
-        {/* Step Indicator */}
-        <div className="flex justify-between mb-8">
-          {[1, 2, 3].map((step) => (
-            <div key={step} className="flex flex-col items-center gap-2">
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
-                  step < currentStep
-                    ? "bg-green-500 text-white"
-                    : step === currentStep
-                    ? "bg-primary text-white"
-                    : "bg-neutral-200 text-neutral-600"
-                }`}
-              >
-                {step < currentStep ? <Check size={20} /> : step}
+          {/* Progress bar */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex-1">
+                <div className="text-sm font-medium text-neutral-900">
+                  Step {currentStep} of 3
+                </div>
               </div>
-              <span className="text-xs font-medium text-neutral-600 text-center w-20">
-                {step === 1 && "Business"}
-                {step === 2 && "Contact"}
-                {step === 3 && "Plan"}
-              </span>
             </div>
-          ))}
-        </div>
+            <div className="h-2 bg-neutral-200 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-primary transition-all duration-300"
+                style={{ width: `${(currentStep / 3) * 100}%` }}
+              />
+            </div>
+            <div className="flex justify-between mt-4">
+              {["Business Info", "Contact & Security", "Plan Selection"].map(
+                (label, idx) => (
+                  <div
+                    key={idx}
+                    className={`text-xs font-medium ${
+                      idx + 1 <= currentStep
+                        ? "text-primary"
+                        : "text-neutral-500"
+                    }`}
+                  >
+                    {label}
+                  </div>
+                )
+              )}
+            </div>
+          </div>
 
-        {/* Form Card */}
-        <div className="bg-white rounded-lg border border-slate-200 p-8 shadow-lg">
-          {/* Step 1: Business Details */}
-          {currentStep === 1 && (
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-neutral-900">Business Details</h2>
+          {/* Form container */}
+          <div className="bg-white rounded-xl shadow-lg p-8">
+            {/* Step 1: Business Info */}
+            {currentStep === 1 && (
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold text-neutral-900">
+                  Business Information
+                </h2>
 
-              <div>
-                <label className="block text-sm font-medium text-neutral-900 mb-2">
-                  Business Name *
-                </label>
-                <input
-                  type="text"
-                  value={formData.businessName}
-                  onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                  placeholder="e.g., ABC Workshop"
-                />
-                {errors.businessName && <p className="text-red-500 text-sm mt-1">{errors.businessName}</p>}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-neutral-900 mb-2">
-                  GST Number (15 characters) *
-                </label>
-                <input
-                  type="text"
-                  value={formData.gstNumber}
-                  onChange={(e) => setFormData({ ...formData, gstNumber: e.target.value.toUpperCase() })}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none uppercase"
-                  placeholder="e.g., 27AABCT1234H1Z0"
-                  maxLength={15}
-                />
-                {errors.gstNumber && <p className="text-red-500 text-sm mt-1">{errors.gstNumber}</p>}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-neutral-900 mb-2">
-                  Business Type *
-                </label>
-                <select
-                  value={formData.businessType}
-                  onChange={(e) => setFormData({ ...formData, businessType: e.target.value })}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                >
-                  <option value="">Select business type</option>
-                  {businessTypes.map((type) => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </select>
-                {errors.businessType && <p className="text-red-500 text-sm mt-1">{errors.businessType}</p>}
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-neutral-900 mb-2">
-                    City *
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
+                    Business Name *
                   </label>
                   <input
                     type="text"
-                    value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                    placeholder="e.g., Mumbai"
+                    {...businessForm.register("businessName")}
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="Your business name"
                   />
-                  {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
+                  {businessForm.formState.errors.businessName && (
+                    <p className="text-red-600 text-sm mt-1">
+                      {businessForm.formState.errors.businessName.message}
+                    </p>
+                  )}
                 </div>
+
                 <div>
-                  <label className="block text-sm font-medium text-neutral-900 mb-2">
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
+                    GST Number *
+                  </label>
+                  <input
+                    type="text"
+                    {...businessForm.register("gstNumber")}
+                    onChange={(e) => {
+                      businessForm.setValue("gstNumber", e.target.value.toUpperCase());
+                      if (e.target.value.length === 15) {
+                        validateGST(e.target.value);
+                      }
+                    }}
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary uppercase"
+                    placeholder="15-character GST number"
+                    maxLength={15}
+                  />
+                  {businessForm.formState.errors.gstNumber && (
+                    <p className="text-red-600 text-sm mt-1">
+                      {businessForm.formState.errors.gstNumber.message}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
+                    Business Type *
+                  </label>
+                  <select
+                    {...businessForm.register("businessType")}
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  >
+                    <option value="">Select business type</option>
+                    {BUSINESS_TYPES.map((type) => (
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
+                    ))}
+                  </select>
+                  {businessForm.formState.errors.businessType && (
+                    <p className="text-red-600 text-sm mt-1">
+                      {businessForm.formState.errors.businessType.message}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
                     Pincode *
                   </label>
                   <input
                     type="text"
-                    value={formData.pincode}
-                    onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                    placeholder="e.g., 400001"
+                    value={businessForm.watch("pincode")}
+                    onChange={(e) =>
+                      handlePincodeChange(e.target.value.slice(0, 6))
+                    }
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="6-digit pincode"
                     maxLength={6}
                   />
-                  {errors.pincode && <p className="text-red-500 text-sm mt-1">{errors.pincode}</p>}
+                  {businessForm.formState.errors.pincode && (
+                    <p className="text-red-600 text-sm mt-1">
+                      {businessForm.formState.errors.pincode.message}
+                    </p>
+                  )}
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium text-neutral-900 mb-2">
-                  State *
-                </label>
-                <select
-                  value={formData.state}
-                  onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                >
-                  <option value="">Select state</option>
-                  {states.map((state) => (
-                    <option key={state} value={state}>{state}</option>
-                  ))}
-                </select>
-                {errors.state && <p className="text-red-500 text-sm mt-1">{errors.state}</p>}
-              </div>
-
-              <p className="text-sm text-neutral-600">
-                Already registered?{" "}
-                <Link href="/b2b/login" className="text-primary font-medium hover:underline">
-                  Login here
-                </Link>
-              </p>
-            </div>
-          )}
-
-          {/* Step 2: Contact & Auth */}
-          {currentStep === 2 && (
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-neutral-900">Contact & Authentication</h2>
-
-              <div>
-                <label className="block text-sm font-medium text-neutral-900 mb-2">
-                  Owner Name *
-                </label>
-                <input
-                  type="text"
-                  value={formData.ownerName}
-                  onChange={(e) => setFormData({ ...formData, ownerName: e.target.value })}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                  placeholder="Full name"
-                />
-                {errors.ownerName && <p className="text-red-500 text-sm mt-1">{errors.ownerName}</p>}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-neutral-900 mb-2">
-                  Phone Number (10 digits) *
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    disabled={otpSent}
-                    className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none disabled:bg-neutral-100"
-                    placeholder="10-digit phone number"
-                    maxLength={10}
-                  />
-                  <button
-                    type="button"
-                    onClick={handleSendOTP}
-                    disabled={otpSent || !formData.phone}
-                    className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-                  >
-                    {otpSent ? "OTP Sent" : "Send OTP"}
-                  </button>
-                </div>
-                {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
-              </div>
-
-              {otpSent && !otpVerified && (
-                <div>
-                  <label className="block text-sm font-medium text-neutral-900 mb-2">
-                    Enter OTP (6 digits) *
-                  </label>
-                  <div className="flex gap-2">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      City *
+                    </label>
                     <input
                       type="text"
-                      value={otp}
-                      onChange={(e) => setOtp(e.target.value)}
-                      className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                      placeholder="000000"
-                      maxLength={6}
+                      {...businessForm.register("city")}
+                      readOnly
+                      className="w-full px-4 py-3 border border-neutral-300 rounded-lg bg-neutral-50"
+                      placeholder="Auto-filled"
                     />
-                    <button
-                      type="button"
-                      onClick={handleVerifyOTP}
-                      className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 whitespace-nowrap"
-                    >
-                      Verify
-                    </button>
                   </div>
-                  {errors.otp && <p className="text-red-500 text-sm mt-1">{errors.otp}</p>}
-                </div>
-              )}
-
-              {otpVerified && (
-                <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-800 text-sm">
-                  ✓ Phone number verified
-                </div>
-              )}
-
-              <div>
-                <label className="block text-sm font-medium text-neutral-900 mb-2">
-                  Email *
-                </label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                  placeholder="business@example.com"
-                />
-                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-neutral-900 mb-2">
-                  Password (min 8 characters) *
-                </label>
-                <input
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                  placeholder="Enter password"
-                />
-                {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-neutral-900 mb-2">
-                  Confirm Password *
-                </label>
-                <input
-                  type="password"
-                  value={formData.confirmPassword}
-                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                  placeholder="Confirm password"
-                />
-                {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>}
-              </div>
-            </div>
-          )}
-
-          {/* Step 3: Plan Selection */}
-          {currentStep === 3 && (
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-neutral-900">Select Your Plan</h2>
-              <p className="text-neutral-600">Choose the plan that works best for your business. You can upgrade anytime.</p>
-
-              <div className="grid md:grid-cols-3 gap-6">
-                {plans.map((plan) => (
-                  <div
-                    key={plan.name}
-                    onClick={() => setFormData({ ...formData, selectedPlan: plan.name })}
-                    className={`border-2 rounded-lg p-6 cursor-pointer transition-all ${
-                      formData.selectedPlan === plan.name
-                        ? "border-primary bg-primary/5"
-                        : "border-slate-200 hover:border-slate-300"
-                    } ${plan.popular ? "relative" : ""}`}
-                  >
-                    {plan.popular && (
-                      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary text-white px-4 py-1 rounded-full text-sm font-medium">
-                        Popular
-                      </div>
-                    )}
-                    <h3 className="text-lg font-bold text-neutral-900 mb-2">{plan.name}</h3>
-                    <div className="text-3xl font-bold text-primary mb-4">{plan.discount}</div>
-                    <ul className="space-y-2">
-                      {plan.features.map((feature, idx) => (
-                        <li key={idx} className="text-sm text-neutral-600 flex gap-2">
-                          <span className="text-green-500 font-bold">✓</span>
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                    {formData.selectedPlan === plan.name && (
-                      <div className="mt-4 p-2 bg-primary text-white rounded text-center text-sm font-medium">
-                        Selected
-                      </div>
-                    )}
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      State *
+                    </label>
+                    <input
+                      type="text"
+                      {...businessForm.register("state")}
+                      readOnly
+                      className="w-full px-4 py-3 border border-neutral-300 rounded-lg bg-neutral-50"
+                      placeholder="Auto-filled"
+                    />
                   </div>
-                ))}
-              </div>
+                </div>
 
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-sm text-blue-900">
-                  <strong>Note:</strong> You can change your plan or upgrade anytime from your account dashboard.
-                </p>
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
+                    Years in Business
+                  </label>
+                  <input
+                    type="number"
+                    {...businessForm.register("yearsInBusiness")}
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="0"
+                    min="0"
+                  />
+                </div>
               </div>
-            </div>
-          )}
-
-          {/* Navigation Buttons */}
-          <div className="flex gap-4 mt-8 pt-6 border-t border-slate-200">
-            <button
-              onClick={handlePrev}
-              disabled={currentStep === 1 || submitting}
-              className="flex items-center gap-2 px-6 py-2 border border-slate-300 text-neutral-900 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronLeft size={18} />
-              Previous
-            </button>
-            <div className="flex-1" />
-            {currentStep < 3 ? (
-              <button
-                onClick={handleNext}
-                disabled={submitting}
-                className="flex items-center gap-2 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                Next
-                <ChevronRight size={18} />
-              </button>
-            ) : (
-              <button
-                onClick={handleSubmit}
-                disabled={submitting}
-                className="flex items-center gap-2 px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {submitting && <Loader size={18} className="animate-spin" />}
-                {submitting ? "Registering..." : "Complete Registration"}
-              </button>
             )}
+
+            {/* Step 2: Contact & Security */}
+            {currentStep === 2 && (
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold text-neutral-900">
+                  Contact & Security
+                </h2>
+
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
+                    Owner/Manager Name *
+                  </label>
+                  <input
+                    type="text"
+                    {...contactForm.register("ownerName")}
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="Full name"
+                  />
+                  {contactForm.formState.errors.ownerName && (
+                    <p className="text-red-600 text-sm mt-1">
+                      {contactForm.formState.errors.ownerName.message}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
+                    Mobile Number * {contactForm.watch("otpVerified") && (
+                      <span className="text-green-600 text-sm ml-2">✓ Verified</span>
+                    )}
+                  </label>
+                  {!contactForm.watch("otpVerified") ? (
+                    <div className="space-y-3">
+                      <input
+                        type="tel"
+                        {...contactForm.register("mobile")}
+                        className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        placeholder="+919876543210"
+                      />
+                      <button
+                        onClick={handleSendOTP}
+                        disabled={isLoading}
+                        className="w-full py-2 bg-primary text-white font-medium rounded-lg hover:bg-blue-900 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+                      >
+                        {isLoading && <Loader2 size={16} className="animate-spin" />}
+                        Send OTP
+                      </button>
+
+                      {otpSent && (
+                        <div className="space-y-3 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                          <div className="flex gap-2">
+                            {otp.map((digit, index) => (
+                              <input
+                                key={index}
+                                ref={(el) => {
+                                  otpRefs.current[index] = el;
+                                }}
+                                type="text"
+                                inputMode="numeric"
+                                maxLength={1}
+                                value={digit}
+                                onChange={(e) => handleOtpChange(index, e.target.value)}
+                                onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                                className="w-10 h-10 text-center font-bold border-2 border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                              />
+                            ))}
+                          </div>
+
+                          {demoOTP && (
+                            <div className="text-sm text-blue-900">
+                              <strong>Demo OTP:</strong> {demoOTP}
+                            </div>
+                          )}
+
+                          <button
+                            onClick={() => {
+                              setOtpSent(false);
+                              setOtp(["", "", "", "", "", ""]);
+                            }}
+                            disabled={isLoading || otpExpiry > 0}
+                            className="text-sm text-primary hover:underline disabled:text-neutral-400"
+                          >
+                            {otpExpiry > 0 ? `Resend in ${otpExpiry}s` : "Send OTP Again"}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3 px-4 py-3 bg-green-50 border border-green-300 rounded-lg">
+                      <Check size={20} className="text-green-600" />
+                      <div>
+                        <p className="text-green-900 font-medium">Phone Verified</p>
+                        <p className="text-green-800 text-sm">{contactForm.watch("mobile")}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    {...contactForm.register("email")}
+                    onChange={(e) => {
+                      contactForm.setValue("email", e.target.value);
+                      if (e.target.value.includes("@")) {
+                        validateEmail(e.target.value);
+                      }
+                    }}
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="your@company.com"
+                  />
+                  {contactForm.formState.errors.email && (
+                    <p className="text-red-600 text-sm mt-1">
+                      {contactForm.formState.errors.email.message}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
+                    Password *
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="password"
+                      {...contactForm.register("password")}
+                      className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      placeholder="••••••••"
+                    />
+                  </div>
+                  {contactForm.watch("password") && (
+                    <div className="mt-2">
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="flex-1 h-2 bg-neutral-200 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full transition-all ${
+                              passwordStrength.strength === 0
+                                ? "w-1/4 bg-red-500"
+                                : passwordStrength.strength === 1
+                                ? "w-2/4 bg-yellow-500"
+                                : passwordStrength.strength === 2
+                                ? "w-3/4 bg-blue-500"
+                                : "w-full bg-green-500"
+                            }`}
+                          />
+                        </div>
+                        <span className="text-xs font-medium text-neutral-600">
+                          {passwordStrength.label}
+                        </span>
+                      </div>
+                      <p className="text-xs text-neutral-600">
+                        Use 8+ characters with uppercase, numbers, and symbols
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
+                    Confirm Password *
+                  </label>
+                  <input
+                    type="password"
+                    {...contactForm.register("confirmPassword")}
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="••••••••"
+                  />
+                  {contactForm.formState.errors.confirmPassword && (
+                    <p className="text-red-600 text-sm mt-1">
+                      {contactForm.formState.errors.confirmPassword.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Plan Selection */}
+            {currentStep === 3 && (
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold text-neutral-900">
+                  Select Your Plan
+                </h2>
+
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-4">
+                    Estimated Monthly Spend (Optional)
+                  </label>
+                  <select
+                    {...planForm.register("estimatedSpend")}
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  >
+                    <option value="">Select range</option>
+                    <option value="5000">₹0 - ₹5,000</option>
+                    <option value="25000">₹5,000 - ₹25,000</option>
+                    <option value="50000">₹25,000 - ₹50,000</option>
+                    <option value="100000">₹50,000 - ₹1,00,000</option>
+                    <option value="500000">₹1,00,000+</option>
+                  </select>
+                </div>
+
+                <div className="grid gap-6 md:grid-cols-3">
+                  {PLANS.map((plan) => (
+                    <div
+                      key={plan.id}
+                      onClick={() => planForm.setValue("selectedPlan", plan.id as any)}
+                      className={`relative border-2 rounded-xl p-6 cursor-pointer transition-all ${
+                        planForm.watch("selectedPlan") === plan.id
+                          ? "border-primary bg-blue-50"
+                          : "border-neutral-200 hover:border-primary"
+                      }`}
+                    >
+                      {plan.badge && (
+                        <div className="absolute -top-3 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">
+                          {plan.badge}
+                        </div>
+                      )}
+
+                      {planForm.watch("selectedPlan") === plan.id && (
+                        <div className="absolute top-4 right-4 w-6 h-6 bg-primary rounded-full flex items-center justify-center">
+                          <Check size={16} className="text-white" />
+                        </div>
+                      )}
+
+                      <h3 className="font-bold text-lg text-neutral-900 mb-2">
+                        {plan.name}
+                      </h3>
+                      <div className="mb-4">
+                        <span className="text-3xl font-bold text-primary">
+                          {plan.price}
+                        </span>
+                        {plan.period && (
+                          <span className="text-neutral-600 text-sm">{plan.period}</span>
+                        )}
+                      </div>
+                      <p className="text-sm text-neutral-600 mb-4">
+                        {plan.description}
+                      </p>
+
+                      <ul className="space-y-2">
+                        {plan.features.map((feature, idx) => (
+                          <li key={idx} className="flex gap-2 text-sm text-neutral-700">
+                            <Check size={16} className="text-green-600 flex-shrink-0 mt-0.5" />
+                            <span>{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-neutral-900 mb-2">
+                    Why Choose SpareKart?
+                  </h4>
+                  <ul className="space-y-1 text-sm text-neutral-700">
+                    <li>✓ 100% authentic spare parts only</li>
+                    <li>✓ Pan-India same-day delivery available</li>
+                    <li>✓ Direct sourcing with best prices</li>
+                    <li>✓ Dedicated account manager for Pro & Enterprise</li>
+                    <li>✓ GST invoicing & extended credit terms</li>
+                  </ul>
+                </div>
+              </div>
+            )}
+
+            {/* Navigation buttons */}
+            <div className="flex gap-4 mt-8 pt-6 border-t border-neutral-200">
+              <button
+                onClick={handlePrevStep}
+                disabled={currentStep === 1 || isLoading}
+                className="flex-1 py-3 border-2 border-neutral-300 text-neutral-900 font-semibold rounded-lg hover:bg-neutral-50 disabled:opacity-50 transition-colors"
+              >
+                Back
+              </button>
+
+              {currentStep < 3 ? (
+                <button
+                  onClick={handleNextStep}
+                  disabled={isLoading}
+                  className="flex-1 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-blue-900 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+                >
+                  {isLoading && <Loader2 size={18} className="animate-spin" />}
+                  Next <ChevronRight size={18} />
+                </button>
+              ) : (
+                <button
+                  onClick={handleSubmit}
+                  disabled={isLoading}
+                  className="flex-1 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+                >
+                  {isLoading && <Loader2 size={18} className="animate-spin" />}
+                  Complete Registration
+                </button>
+              )}
+            </div>
           </div>
+
+          {/* Sign in link */}
+          <p className="text-center text-neutral-600 mt-6">
+            Already have an account?{" "}
+            <a href="/b2b/login" className="text-primary hover:underline font-semibold">
+              Sign In
+            </a>
+          </p>
         </div>
       </div>
-    </div>
+    </>
   );
 }

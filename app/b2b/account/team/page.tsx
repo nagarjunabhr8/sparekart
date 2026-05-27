@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast, { Toaster } from "react-hot-toast";
-import { Trash2, Plus, Shield, Settings2 } from "lucide-react";
+import { Trash2, Plus, Shield } from "lucide-react";
 
 const teamMemberSchema = z.object({
   email: z.string().email("Invalid email address"),
-  role: z.enum(["Owner", "Manager", "Purchaser"]),
+  role: z.enum(["Owner", "Manager", "Purchaser", "Viewer"]),
 });
 
 type TeamMemberFormData = z.infer<typeof teamMemberSchema>;
@@ -17,38 +17,15 @@ type TeamMemberFormData = z.infer<typeof teamMemberSchema>;
 interface TeamMember extends TeamMemberFormData {
   id: string;
   name: string;
-  status: "active" | "pending";
+  status: "active" | "pending" | "suspended";
   joinedDate?: string;
+  lastActive?: string;
 }
 
 export default function TeamMembersPage() {
-  const [members, setMembers] = useState<TeamMember[]>([
-    {
-      id: "1",
-      name: "Rajesh Kumar",
-      email: "rajesh@techauto.com",
-      role: "Owner",
-      status: "active",
-      joinedDate: "2024-01-15",
-    },
-    {
-      id: "2",
-      name: "Priya Sharma",
-      email: "priya@techauto.com",
-      role: "Manager",
-      status: "active",
-      joinedDate: "2024-02-20",
-    },
-    {
-      id: "3",
-      name: "Amit Patel",
-      email: "amit@techauto.com",
-      role: "Purchaser",
-      status: "pending",
-    },
-  ]);
-
+  const [members, setMembers] = useState<TeamMember[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isPageLoading, setIsPageLoading] = useState(true);
 
   const {
     register,
@@ -59,40 +36,119 @@ export default function TeamMembersPage() {
     resolver: zodResolver(teamMemberSchema),
   });
 
+  // Fetch team members on mount
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        const response = await fetch("/api/b2b/team/members");
+        const data = await response.json();
+        if (data.success) {
+          setMembers(data.members);
+        }
+      } catch (error) {
+        console.error("Failed to fetch team members:", error);
+        toast.error("Failed to load team members");
+      } finally {
+        setIsPageLoading(false);
+      }
+    };
+
+    fetchMembers();
+  }, []);
+
   const onSubmit = async (data: TeamMemberFormData) => {
     setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await fetch("/api/b2b/team/invite", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
 
-      const newMember: TeamMember = {
-        ...data,
-        id: Date.now().toString(),
-        name: data.email.split("@")[0],
-        status: "pending",
-      };
-      setMembers([...members, newMember]);
+      const result = await response.json();
+
+      if (!response.ok) {
+        toast.error(result.error || "Failed to send invitation");
+        return;
+      }
+
+      setMembers([...members, result.member]);
       toast.success("Invitation sent successfully!");
       reset();
     } catch (error) {
+      console.error("Invitation error:", error);
       toast.error("Failed to send invitation");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleRemove = (id: string) => {
-    setMembers(members.filter((m) => m.id !== id));
-    toast.success("Team member removed");
+  const handleRemove = async (id: string) => {
+    try {
+      const response = await fetch(`/api/b2b/team/members/${id}`, {
+        method: "DELETE",
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        toast.error(result.error || "Failed to remove member");
+        return;
+      }
+
+      setMembers(members.filter((m) => m.id !== id));
+      toast.success("Team member removed");
+    } catch (error) {
+      console.error("Remove member error:", error);
+      toast.error("Failed to remove member");
+    }
   };
 
   const handleRoleChange = async (id: string, newRole: string) => {
-    setMembers(
-      members.map((m) =>
-        m.id === id ? { ...m, role: newRole as TeamMember["role"] } : m
-      )
-    );
-    toast.success("Role updated");
+    try {
+      const response = await fetch(`/api/b2b/team/members/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ role: newRole }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        toast.error(result.error || "Failed to update role");
+        return;
+      }
+
+      setMembers(
+        members.map((m) =>
+          m.id === id ? { ...m, role: newRole as TeamMember["role"] } : m
+        )
+      );
+      toast.success("Role updated");
+    } catch (error) {
+      console.error("Role update error:", error);
+      toast.error("Failed to update role");
+    }
   };
+
+  if (isPageLoading) {
+    return (
+      <>
+        <Toaster position="top-right" />
+        <div className="space-y-6">
+          <div className="bg-white rounded-lg border border-slate-200 p-6 h-48 animate-pulse" />
+          <div className="space-y-3">
+            <div className="h-8 bg-slate-200 rounded animate-pulse w-1/4" />
+            <div className="bg-white rounded-lg border border-slate-200 p-4 h-24 animate-pulse" />
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -127,9 +183,10 @@ export default function TeamMembersPage() {
                   {...register("role")}
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 >
+                  <option value="">Select a role</option>
                   <option value="Purchaser">Purchaser (Can create orders)</option>
                   <option value="Manager">Manager (Can manage orders and team)</option>
-                  <option value="Owner">Owner (Full access)</option>
+                  <option value="Viewer">Viewer (Read-only access)</option>
                 </select>
                 {errors.role && <p className="text-red-600 text-sm mt-1">{errors.role.message}</p>}
               </div>
@@ -150,7 +207,12 @@ export default function TeamMembersPage() {
         <div className="space-y-3">
           <h3 className="text-lg font-semibold text-neutral-900">Team Members ({members.length})</h3>
 
-          {members.map((member) => (
+          {members.length === 0 ? (
+            <div className="bg-white rounded-lg border border-slate-200 p-8 text-center">
+              <p className="text-neutral-600">No team members yet. Invite someone to get started!</p>
+            </div>
+          ) : (
+            members.map((member) => (
             <div key={member.id} className="bg-white rounded-lg border border-slate-200 p-4">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
@@ -163,10 +225,16 @@ export default function TeamMembersPage() {
                       className={`text-xs px-2 py-1 rounded-full ${
                         member.status === "active"
                           ? "bg-green-100 text-green-800"
-                          : "bg-amber-100 text-amber-800"
+                          : member.status === "pending"
+                          ? "bg-amber-100 text-amber-800"
+                          : "bg-red-100 text-red-800"
                       }`}
                     >
-                      {member.status === "active" ? "Active" : "Pending"}
+                      {member.status === "active"
+                        ? "Active"
+                        : member.status === "pending"
+                        ? "Pending"
+                        : "Suspended"}
                     </span>
                   </div>
                   <p className="text-sm text-neutral-600 mb-2">{member.email}</p>
@@ -179,25 +247,29 @@ export default function TeamMembersPage() {
 
                 <div className="flex gap-2 ml-4 items-center">
                   {member.role !== "Owner" && (
-                    <select
-                      value={member.role}
-                      onChange={(e) => handleRoleChange(member.id, e.target.value)}
-                      className="px-3 py-1 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    >
-                      <option value="Purchaser">Purchaser</option>
-                      <option value="Manager">Manager</option>
-                    </select>
+                    <>
+                      <select
+                        value={member.role}
+                        onChange={(e) => handleRoleChange(member.id, e.target.value)}
+                        className="px-3 py-1 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      >
+                        <option value="Purchaser">Purchaser</option>
+                        <option value="Manager">Manager</option>
+                        <option value="Viewer">Viewer</option>
+                      </select>
+                      <button
+                        onClick={() => handleRemove(member.id)}
+                        className="p-2 text-neutral-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </>
                   )}
-                  <button
-                    onClick={() => handleRemove(member.id)}
-                    className="p-2 text-neutral-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                  >
-                    <Trash2 size={18} />
-                  </button>
                 </div>
               </div>
             </div>
-          ))}
+          ))
+          )}
         </div>
 
         {/* Role Information */}

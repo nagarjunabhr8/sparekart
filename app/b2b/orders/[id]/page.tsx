@@ -17,6 +17,7 @@ import Link from "next/link";
 import { mockOrders } from "@/lib/mockOrders";
 import TrackingModal from "@/components/B2B/TrackingModal";
 import ReorderModal from "@/components/B2B/ReorderModal";
+import CancelOrderModal from "@/components/B2B/CancelOrderModal";
 
 const statusConfig = {
   pending: { bg: "bg-amber-100", text: "text-amber-800", label: "Pending" },
@@ -42,6 +43,7 @@ export default function OrderDetailsPage() {
   const router = useRouter();
   const [trackingOpen, setTrackingOpen] = useState(false);
   const [reorderOpen, setReorderOpen] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState(false);
 
   const order = mockOrders.find((o) => o.id === params.id);
 
@@ -423,7 +425,10 @@ export default function OrderDetailsPage() {
                     </button>
                   )}
                   {canCancel && (
-                    <button className="w-full px-4 py-2 border-2 border-red-600 text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium">
+                    <button
+                      onClick={() => setCancelOpen(true)}
+                      className="w-full px-4 py-2 border-2 border-red-600 text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
+                    >
                       Cancel Order
                     </button>
                   )}
@@ -449,6 +454,16 @@ export default function OrderDetailsPage() {
         {/* Modals */}
         <TrackingModal isOpen={trackingOpen} onClose={() => setTrackingOpen(false)} order={order} />
         <ReorderModal isOpen={reorderOpen} onClose={() => setReorderOpen(false)} order={order} />
+        <CancelOrderModal
+          isOpen={cancelOpen}
+          onClose={() => setCancelOpen(false)}
+          order={order}
+          onSuccess={() => {
+            setTimeout(() => {
+              router.refresh();
+            }, 1500);
+          }}
+        />
       </div>
     </>
   );
