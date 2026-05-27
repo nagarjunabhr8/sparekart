@@ -2,8 +2,17 @@ import { NextResponse } from "next/server";
 import { signJWT } from "@/lib/jwt";
 import { getOTP, clearOTP } from "@/lib/otpUtils";
 
+interface MockUser {
+  userId: string;
+  email: string;
+  businessName: string;
+  phone: string;
+  role: "admin" | "user";
+  verified: boolean;
+}
+
 // Mock user database (same as login)
-const mockUsers = [
+const mockUsers: MockUser[] = [
   {
     userId: "user_001",
     email: "demo@sparekart.com",

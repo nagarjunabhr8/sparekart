@@ -1,8 +1,19 @@
 import { NextResponse } from "next/server";
 import { signJWT } from "@/lib/jwt";
 
+interface MockUser {
+  userId: string;
+  email: string;
+  password: string;
+  businessName: string;
+  phone: string;
+  role: "admin" | "user";
+  verified: boolean;
+  suspended: boolean;
+}
+
 // Mock user database
-const mockUsers = [
+const mockUsers: MockUser[] = [
   {
     userId: "user_001",
     email: "demo@sparekart.com",
