@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast, { Toaster } from "react-hot-toast";
-import { Trash2, Plus, Check, AlertCircle } from "lucide-react";
+import { Trash2, Plus, AlertCircle } from "lucide-react";
 
 const paymentMethodSchema = z.object({
   type: z.enum(["UPI", "NEFT"]),
@@ -49,7 +49,6 @@ export default function PaymentMethodsPage() {
   ]);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [paymentType, setPaymentType] = useState<"UPI" | "NEFT">("UPI");
 
   const {
     register,
@@ -77,7 +76,6 @@ export default function PaymentMethodsPage() {
       setMethods([...methods, newMethod]);
       toast.success("Payment method added successfully!");
       reset({ type: "UPI" });
-      setPaymentType("UPI");
     } catch (error) {
       toast.error("Failed to add payment method");
     } finally {

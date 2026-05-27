@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { ChevronDown, X, Search } from "lucide-react";
-import { FilterState, useFilters } from "@/lib/useFilters";
+import { useFilters } from "@/lib/useFilters";
 import { carMakes, models, categories, years, mockProducts } from "@/lib/mockData";
 
 interface FilterPanelProps {

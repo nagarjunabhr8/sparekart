@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast, { Toaster } from "react-hot-toast";
-import { Trash2, Plus, Edit2, Check } from "lucide-react";
+import { Trash2, Edit2, Check } from "lucide-react";
 
 const addressSchema = z.object({
   label: z.string().min(2, "Label required"),
@@ -15,7 +15,7 @@ const addressSchema = z.object({
   city: z.string().min(2, "City required"),
   state: z.string().min(2, "State required"),
   pincode: z.string().regex(/^\d{6}$/, "Pincode must be 6 digits"),
-  isDefault: z.boolean().default(false),
+  isDefault: z.boolean(),
 });
 
 type AddressFormData = z.infer<typeof addressSchema>;

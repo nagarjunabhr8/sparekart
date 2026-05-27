@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Zap, ShoppingBag } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -19,8 +18,8 @@ export default function B2BHeroSection() {
   const cartItemsCount = getItemCount();
 
   const handleStartShopping = () => {
-    if (typeof window !== "undefined" && window.analytics) {
-      window.analytics.track("b2b_hero_cta_clicked", { button: "start_shopping" });
+    if (typeof window !== "undefined" && (window as any).analytics) {
+      (window as any).analytics.track("b2b_hero_cta_clicked", { button: "start_shopping" });
     }
 
     const catalogSection = document.getElementById("catalog-section");

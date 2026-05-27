@@ -24,8 +24,8 @@ export async function GET(request: NextRequest) {
     const period = searchParams.get("period") || "6m";
 
     // Mock data for different periods
-    let monthlyData = [];
-    let categoryData = [];
+    let monthlyData: Array<{ month: string; spent: number }> = [];
+    let categoryData: Array<{ name: string; value: number }> = [];
 
     if (period === "6m") {
       monthlyData = [

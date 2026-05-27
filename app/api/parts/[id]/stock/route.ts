@@ -38,7 +38,7 @@ const mockStockData: Record<string, StockData> = {
 };
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {

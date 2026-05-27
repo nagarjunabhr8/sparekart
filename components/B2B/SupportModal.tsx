@@ -79,7 +79,7 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
     if ((window as any).$crisp) {
       (window as any).$crisp.push(["do", "chat:open"]);
     } else {
-      toast.info("Live chat will be available soon!");
+      toast.success("Live chat will be available soon!");
     }
   };
 

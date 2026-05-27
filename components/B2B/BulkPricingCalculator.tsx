@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/lib/authContext";
 import Link from "next/link";
 
 interface PricingTier {
@@ -24,7 +23,6 @@ interface UserPlan {
 
 export default function BulkPricingCalculator() {
   const [monthlySpend, setMonthlySpend] = useState(100000);
-  const { isAuthenticated } = useAuth();
 
   const getTierFromSpend = (spend: number): PricingTier => {
     return (

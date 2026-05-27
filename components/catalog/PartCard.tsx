@@ -73,8 +73,8 @@ export default function PartCard({
       setCartQty(1);
       setIsAdded(true);
 
-      // Show success toast with undo
-      const toastId = toast.success(`${name} added to cart`, {
+      // Show success toast
+      toast.success(`${name} added to cart`, {
         duration: 3000,
         icon: "✓",
       });

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useWishlistStore } from "@/stores/wishlistStore";
 import { useCartStore } from "@/stores/cartStore";
 import { Heart, Trash2, Share2, ShoppingCart } from "lucide-react";
@@ -10,7 +9,6 @@ import StockBadge from "@/components/catalog/StockBadge";
 export default function WishlistPage() {
   const { items, removeItem } = useWishlistStore();
   const { addItem: addToCart } = useCartStore();
-  const [shareModalOpen, setShareModalOpen] = useState(false);
 
   const handleRemove = (id: string) => {
     removeItem(id);
@@ -53,7 +51,6 @@ export default function WishlistPage() {
     const wishlistUrl = `${window.location.origin}/b2b/wishlist/share/${btoa(items.map((i) => i.id).join(","))}`;
     navigator.clipboard.writeText(wishlistUrl);
     toast.success("Wishlist link copied to clipboard");
-    setShareModalOpen(false);
   };
 
   const getPriceDropStatus = (item: any) => {

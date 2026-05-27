@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Metadata } from "next";
+import { Suspense, useState, useMemo } from "react";
 import { Menu, Grid3x3, List, ShoppingCart } from "lucide-react";
 import { useFilters } from "@/lib/useFilters";
 import { mockProducts } from "@/lib/mockData";
@@ -80,11 +79,11 @@ function filterAndSortProducts(filters: any) {
   return results;
 }
 
-export default function CatalogPage() {
+function CatalogContent() {
   const { filters, updateFilter } = useFilters();
   const [filterPanelOpen, setFilterPanelOpen] = useState(false);
   const [bulkOrderOpen, setBulkOrderOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, _setIsLoading] = useState(false);
 
   const allFilteredProducts = useMemo(
     () => filterAndSortProducts(filters),
@@ -316,9 +315,16 @@ export default function CatalogPage() {
         isOpen={bulkOrderOpen}
         onClose={() => setBulkOrderOpen(false)}
         userPlan="Professional"
-        userEmail="user@sparekart.com"
         userGST="18AABCU1234F1Z5"
       />
     </div>
+  );
+}
+
+export default function CatalogPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center"><div>Loading...</div></div>}>
+      <CatalogContent />
+    </Suspense>
   );
 }

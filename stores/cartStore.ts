@@ -84,7 +84,7 @@ export const useCartStore = create<CartState>()(
         return item.price - discount;
       },
 
-      getCartTotal: (tierDiscount?: number) => {
+      getCartTotal: () => {
         const state = get();
         return state.items.reduce((sum, item) => {
           const discountedPrice = state.getDiscountedPrice(item);
@@ -94,7 +94,7 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: "sparekart-cart",
-      storage: typeof window !== "undefined" ? localStorage : undefined,
+      storage: typeof window !== "undefined" ? (localStorage as any) : undefined,
     }
   )
 );

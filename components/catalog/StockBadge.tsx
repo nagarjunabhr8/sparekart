@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, Calendar, Zap } from "lucide-react";
+import { AlertCircle, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface StockBadgeProps {

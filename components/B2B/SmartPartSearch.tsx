@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Search, X, Mic, ChevronDown, MapPin, TrendingUp } from "lucide-react";
+import { Search, X, Mic, MapPin, TrendingUp } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 interface SearchResult {

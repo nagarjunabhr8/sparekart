@@ -75,7 +75,7 @@ export default function SecurityPage() {
     resolver: zodResolver(passwordSchema),
   });
 
-  const onSubmit = async (data: PasswordFormData) => {
+  const onSubmit = async (_data: PasswordFormData) => {
     setIsLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 1500));

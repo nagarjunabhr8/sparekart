@@ -653,7 +653,6 @@ export default function PartDetailPage() {
         isOpen={showBulkModal}
         onClose={() => setShowBulkModal(false)}
         userPlan="Professional"
-        userEmail="user@sparekart.com"
         userGST="18AABCU1234F1Z5"
       />
     </div>

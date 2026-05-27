@@ -116,7 +116,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     // In production, fetch from database filtered by user
     // For now, return mock data

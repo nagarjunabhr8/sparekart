@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { PartProduct } from "@/lib/mockData";
-import { Star, ShoppingCart, Check, AlertCircle, Bell, Heart } from "lucide-react";
+import { Star, ShoppingCart, Bell, Heart } from "lucide-react";
 import { useCartStore } from "@/stores/cartStore";
 import { useWishlistStore } from "@/stores/wishlistStore";
 import toast from "react-hot-toast";
@@ -47,8 +47,15 @@ export default function ProductCard({ product, view = "grid" }: ProductCardProps
     setIsAdding(true);
     try {
       addItem({
-        ...product,
+        id: product.id,
+        name: product.name,
+        brand: product.brand,
+        price: product.price,
+        mrp: product.originalPrice,
         quantity: 1,
+        image: product.image,
+        stock: product.stockCount,
+        b2bTierDiscount: 15,
       });
       toast.success(`${product.name} added to cart!`);
     } catch (error) {

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
-import { X, Download, Bell, DollarSign, FileText } from "lucide-react";
+import { X, Download, Bell, FileText } from "lucide-react";
 import toast from "react-hot-toast";
 import {
   BarChart,
@@ -15,7 +15,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from "recharts";
 import CountUp from "react-countup";
@@ -216,7 +215,7 @@ export default function CostControlModal({ isOpen, onClose }: CostControlModalPr
                               <XAxis dataKey="month" />
                               <YAxis />
                               <Tooltip
-                                formatter={(value) => `₹${value.toLocaleString()}`}
+                                formatter={(value: any) => `₹${value.toLocaleString()}`}
                               />
                               <Bar dataKey="spent" fill="#3B82F6" radius={[8, 8, 0, 0]} />
                             </BarChart>
@@ -240,7 +239,7 @@ export default function CostControlModal({ isOpen, onClose }: CostControlModalPr
                                 fill="#8884d8"
                                 dataKey="value"
                               >
-                                {categoryData.map((entry, index) => (
+                                {categoryData.map((_entry, index) => (
                                   <Cell
                                     key={`cell-${index}`}
                                     fill={COLORS[index % COLORS.length]}

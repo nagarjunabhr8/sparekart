@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Star, TrendingUp, ShoppingCart } from "lucide-react";
+import { Star, ShoppingCart } from "lucide-react";
 
 interface Product {
   id: string;

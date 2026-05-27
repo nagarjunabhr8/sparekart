@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Eye, Download, MessageSquare } from "lucide-react";
+import { Eye, Download } from "lucide-react";
 import toast from "react-hot-toast";
 
 interface BulkQuote {
