@@ -1,15 +1,20 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { ChevronLeft, ChevronRight, Download, Eye, Truck, RotateCcw } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, Eye, Truck, RotateCcw, Plus, X } from "lucide-react";
+import Link from "next/link";
 import { mockOrders, Order, OrderStatus } from "@/lib/mockOrders";
+import TrackingModal from "@/components/B2B/TrackingModal";
+import ReorderModal from "@/components/B2B/ReorderModal";
 
 const ITEMS_PER_PAGE = 10;
 
 const statusConfig: Record<OrderStatus, { bg: string; text: string; label: string }> = {
   pending: { bg: "bg-amber-100", text: "text-amber-800", label: "Pending" },
   confirmed: { bg: "bg-blue-100", text: "text-blue-800", label: "Confirmed" },
-  shipped: { bg: "bg-purple-100", text: "text-purple-800", label: "Shipped" },
+  processing: { bg: "bg-purple-100", text: "text-purple-800", label: "Processing" },
+  shipped: { bg: "bg-indigo-100", text: "text-indigo-800", label: "Shipped" },
+  out_for_delivery: { bg: "bg-orange-100", text: "text-orange-800", label: "Out for Delivery" },
   delivered: { bg: "bg-green-100", text: "text-green-800", label: "Delivered" },
   cancelled: { bg: "bg-red-100", text: "text-red-800", label: "Cancelled" },
   return_initiated: { bg: "bg-orange-100", text: "text-orange-800", label: "Return Initiated" },
@@ -23,6 +28,9 @@ export default function OrdersPage() {
     endDate: "",
   });
   const [currentPage, setCurrentPage] = useState(1);
+  const [trackingOpen, setTrackingOpen] = useState(false);
+  const [reorderOpen, setReorderOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const filteredOrders = useMemo(() => {
     let results = [...mockOrders];
@@ -61,8 +69,12 @@ export default function OrdersPage() {
   const currentOrders = filteredOrders.slice(startIdx, endIdx);
 
   const getStatusVariants = (status: OrderStatus) => {
-    const isActive = ["pending", "confirmed", "shipped"].includes(status);
+    const isActive = ["pending", "confirmed", "processing", "shipped", "out_for_delivery"].includes(status);
     return isActive;
+  };
+
+  const canCancelOrder = (status: OrderStatus) => {
+    return ["pending", "confirmed"].includes(status);
   };
 
   const handleStatusChange = (status: "all" | OrderStatus) => {
@@ -87,11 +99,20 @@ export default function OrdersPage() {
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <div className="bg-white border-b border-slate-200">
-        <div className="container-app py-6">
-          <h1 className="text-3xl font-bold text-neutral-900">Orders</h1>
-          <p className="text-neutral-600 text-sm mt-1">
-            {filteredOrders.length} order{filteredOrders.length !== 1 ? "s" : ""} found
-          </p>
+        <div className="container-app py-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-neutral-900">My Orders</h1>
+            <p className="text-neutral-600 text-sm mt-1">
+              {filteredOrders.length} order{filteredOrders.length !== 1 ? "s" : ""} found
+            </p>
+          </div>
+          <Link
+            href="/b2b/catalog"
+            className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-colors font-medium"
+          >
+            <Plus size={18} />
+            <span className="hidden sm:inline">New Order</span>
+          </Link>
         </div>
       </div>
 
@@ -101,10 +122,11 @@ export default function OrdersPage() {
           {/* Status Tabs */}
           <div className="flex flex-wrap gap-2 md:gap-3">
             {[
-              { label: "All Orders", value: "all" as const },
-              { label: "Active", value: "pending" as const },
+              { label: "All", value: "all" as const },
+              { label: "Active", value: "pending" as const, filterType: "active" },
               { label: "Delivered", value: "delivered" as const },
               { label: "Cancelled", value: "cancelled" as const },
+              { label: "Bulk Quotes", value: "confirmed" as const, filterType: "bulk" },
             ].map((tab) => (
               <button
                 key={tab.value}
@@ -228,14 +250,19 @@ export default function OrdersPage() {
                             >
                               <Download size={18} />
                             </button>
-                            <button
+                            <Link
+                              href={`/b2b/orders/${order.id}`}
                               title="View Details"
                               className="p-2 text-neutral-600 hover:text-primary hover:bg-slate-100 rounded transition-colors"
                             >
                               <Eye size={18} />
-                            </button>
+                            </Link>
                             {getStatusVariants(order.status) && (
                               <button
+                                onClick={() => {
+                                  setSelectedOrder(order);
+                                  setTrackingOpen(true);
+                                }}
                                 title="Track Order"
                                 className="p-2 text-neutral-600 hover:text-primary hover:bg-slate-100 rounded transition-colors"
                               >
@@ -243,6 +270,10 @@ export default function OrdersPage() {
                               </button>
                             )}
                             <button
+                              onClick={() => {
+                                setSelectedOrder(order);
+                                setReorderOpen(true);
+                              }}
                               title="Reorder"
                               className="p-2 text-neutral-600 hover:text-primary hover:bg-slate-100 rounded transition-colors"
                             >
@@ -319,16 +350,35 @@ export default function OrdersPage() {
                       <Download size={16} />
                       Invoice
                     </button>
-                    <button className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm bg-slate-100 text-neutral-700 hover:bg-slate-200 rounded transition-colors">
+                    <Link
+                      href={`/b2b/orders/${order.id}`}
+                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm bg-slate-100 text-neutral-700 hover:bg-slate-200 rounded transition-colors"
+                    >
                       <Eye size={16} />
                       Details
-                    </button>
+                    </Link>
                     {getStatusVariants(order.status) && (
-                      <button className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm bg-slate-100 text-neutral-700 hover:bg-slate-200 rounded transition-colors">
+                      <button
+                        onClick={() => {
+                          setSelectedOrder(order);
+                          setTrackingOpen(true);
+                        }}
+                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm bg-slate-100 text-neutral-700 hover:bg-slate-200 rounded transition-colors"
+                      >
                         <Truck size={16} />
                         Track
                       </button>
                     )}
+                    <button
+                      onClick={() => {
+                        setSelectedOrder(order);
+                        setReorderOpen(true);
+                      }}
+                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm bg-slate-100 text-neutral-700 hover:bg-slate-200 rounded transition-colors"
+                    >
+                      <RotateCcw size={16} />
+                      Reorder
+                    </button>
                   </div>
                 </div>
               ))}
@@ -391,6 +441,22 @@ export default function OrdersPage() {
           </>
         )}
       </div>
+
+      {/* Modals */}
+      {selectedOrder && (
+        <>
+          <TrackingModal
+            isOpen={trackingOpen}
+            onClose={() => setTrackingOpen(false)}
+            order={selectedOrder}
+          />
+          <ReorderModal
+            isOpen={reorderOpen}
+            onClose={() => setReorderOpen(false)}
+            order={selectedOrder}
+          />
+        </>
+      )}
     </div>
   );
 }
