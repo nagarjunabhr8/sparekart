@@ -11,7 +11,7 @@ interface TrackingModalProps {
 }
 
 export default function TrackingModal({ isOpen, onClose, order }: TrackingModalProps) {
-  const [trackingData, setTrackingData] = useState(order);
+  const trackingData = order;
   const [lastUpdated, setLastUpdated] = useState(new Date());
 
   useEffect(() => {

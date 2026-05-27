@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { ChevronLeft, ChevronRight, Download, Eye, Truck, RotateCcw, Plus, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, Eye, Truck, RotateCcw, Plus } from "lucide-react";
 import Link from "next/link";
 import { mockOrders, Order, OrderStatus } from "@/lib/mockOrders";
 import TrackingModal from "@/components/B2B/TrackingModal";
@@ -71,10 +71,6 @@ export default function OrdersPage() {
   const getStatusVariants = (status: OrderStatus) => {
     const isActive = ["pending", "confirmed", "processing", "shipped", "out_for_delivery"].includes(status);
     return isActive;
-  };
-
-  const canCancelOrder = (status: OrderStatus) => {
-    return ["pending", "confirmed"].includes(status);
   };
 
   const handleStatusChange = (status: "all" | OrderStatus) => {

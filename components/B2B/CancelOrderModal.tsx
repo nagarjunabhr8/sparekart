@@ -39,7 +39,7 @@ export default function CancelOrderModal({
         throw new Error(data.error || "Failed to cancel order");
       }
 
-      const data = await response.json();
+      await response.json();
 
       // Track analytics
       analytics.track("order_cancelled", {

@@ -117,7 +117,7 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  request: Request,
+  _request: Request,
   context: RouteContext
 ) {
   try {

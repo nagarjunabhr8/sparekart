@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast, { Toaster } from "react-hot-toast";
-import { Trash2, Plus, Shield } from "lucide-react";
+import { Trash2, Plus, Shield, Settings2 } from "lucide-react";
 
 const teamMemberSchema = z.object({
   email: z.string().email("Invalid email address"),

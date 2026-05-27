@@ -49,7 +49,7 @@ const teamMembersDatabase: Record<string, TeamMember[]> = {
   ],
 };
 
-export async function GET(request: Request) {
+export async function GET(_request: Request) {
   try {
     const businessId = "biz_default";
     const members = teamMembersDatabase[businessId] || [];

@@ -2,17 +2,14 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import toast, { Toaster } from "react-hot-toast";
 import {
   ChevronRight,
-  Eye,
-  EyeOff,
   Loader2,
   Check,
-  AlertCircle,
 } from "lucide-react";
 
 // Validation schemas
@@ -28,7 +25,7 @@ const businessInfoSchema = z.object({
   city: z.string().min(2, "City is required"),
   state: z.string().min(2, "State is required"),
   pincode: z.string().regex(/^\d{6}$/, "Pincode must be 6 digits"),
-  yearsInBusiness: z.coerce.number().min(0).optional(),
+  yearsInBusiness: z.string().optional(),
 });
 
 const contactSecuritySchema = z.object({
@@ -45,7 +42,7 @@ const contactSecuritySchema = z.object({
 
 const planSelectionSchema = z.object({
   selectedPlan: z.enum(["starter", "professional", "enterprise"]),
-  estimatedSpend: z.coerce.number().min(0).optional(),
+  estimatedSpend: z.string().optional(),
 });
 
 type BusinessInfoForm = z.infer<typeof businessInfoSchema>;
@@ -335,7 +332,6 @@ export default function RegisterPage() {
 
   const verifyOTP = async (otpArray: string[]) => {
     const otpCode = otpArray.join("");
-    const mobile = contactForm.getValues("mobile");
 
     if (otpCode.length !== 6) {
       toast.error("Enter 6-digit OTP");

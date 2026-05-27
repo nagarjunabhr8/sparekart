@@ -1,7 +1,7 @@
 // Invoice generation and download service
 // Uses html2pdf library for client-side PDF generation
 
-export async function downloadInvoiceAsPDF(orderId: string, orderNumber: string) {
+export async function downloadInvoiceAsPDF(orderId: string, _orderNumber: string) {
   try {
     // Fetch invoice HTML from API
     const response = await fetch(`/api/b2b/orders/${orderId}/invoice`);
@@ -11,7 +11,6 @@ export async function downloadInvoiceAsPDF(orderId: string, orderNumber: string)
     }
 
     const html = await response.text();
-    const invoiceNumber = `INV-SK-${orderNumber.split("-")[2]}`;
 
     // Create a temporary container
     const container = document.createElement("div");
@@ -55,7 +54,7 @@ export async function downloadInvoiceAsPDF(orderId: string, orderNumber: string)
   }
 }
 
-export async function sendInvoiceByEmail(orderId: string, orderNumber: string, email: string) {
+export async function sendInvoiceByEmail(orderId: string, _orderNumber: string, email: string) {
   try {
     const response = await fetch(`/api/b2b/orders/${orderId}/invoice/email`, {
       method: "POST",
@@ -76,7 +75,7 @@ export async function sendInvoiceByEmail(orderId: string, orderNumber: string, e
   }
 }
 
-export async function downloadBulkInvoices(orderIds: string[], orderNumbers: Record<string, string>) {
+export async function downloadBulkInvoices(orderIds: string[], _orderNumbers: Record<string, string>) {
   try {
     const response = await fetch("/api/b2b/orders/invoices/bulk-download", {
       method: "POST",

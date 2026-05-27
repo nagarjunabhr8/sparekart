@@ -7,15 +7,10 @@ import toast, { Toaster } from "react-hot-toast";
 import {
   Upload,
   Check,
-  AlertCircle,
-  MapPin,
   Trash2,
   AlertTriangle,
   Camera,
-  Copy,
   Loader2,
-  Eye,
-  EyeOff,
 } from "lucide-react";
 
 interface ProfileData {
@@ -107,7 +102,6 @@ export default function ProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isDraft, setIsDraft] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [showImageCrop, setShowImageCrop] = useState(false);
   const [cropImage, setCropImage] = useState<string | null>(null);
@@ -134,15 +128,13 @@ export default function ProfilePage() {
     logo: "/images/logo.png",
   });
 
-  const [verificationStatus, setVerificationStatus] = useState({
+  const verificationStatus = {
     gstVerified: true,
     emailVerified: true,
     phoneVerified: true,
-  });
+  };
 
-  const [currentPlan, setCurrentPlan] = useState<PlanInfo>(
-    PLAN_INFO.professional
-  );
+  const currentPlan: PlanInfo = PLAN_INFO.professional;
 
   // Redirect if not logged in
   useEffect(() => {
