@@ -6,7 +6,7 @@ interface RouteContext {
 }
 
 export async function POST(
-  request: Request,
+  _request: Request,
   context: RouteContext
 ) {
   const params = await context.params;
