@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { signJWT } from "@/lib/jwt";
+import { getOTP, clearOTP } from "@/lib/otpUtils";
 
 // Mock user database (same as login)
 const mockUsers = [
@@ -21,9 +22,6 @@ const mockUsers = [
   },
 ];
 
-// Store OTP temporarily (should be same as send/route.ts in production)
-const otpStore = new Map<string, { otp: string; expiresAt: number }>();
-
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -37,26 +35,17 @@ export async function POST(request: Request) {
     }
 
     // Get stored OTP
-    const stored = otpStore.get(phone);
+    const stored = getOTP(phone);
 
     if (!stored) {
       return NextResponse.json(
-        { error: "No OTP found. Please request a new OTP" },
-        { status: 400 }
-      );
-    }
-
-    // Check if expired
-    if (stored.expiresAt < Date.now()) {
-      otpStore.delete(phone);
-      return NextResponse.json(
-        { error: "OTP has expired. Please request a new OTP" },
+        { error: "No OTP found or expired. Please request a new OTP" },
         { status: 400 }
       );
     }
 
     // Verify OTP
-    if (stored.otp !== otp) {
+    if (stored !== otp) {
       return NextResponse.json(
         { error: "Invalid OTP. Please try again" },
         { status: 400 }
@@ -64,7 +53,7 @@ export async function POST(request: Request) {
     }
 
     // Clear OTP
-    otpStore.delete(phone);
+    clearOTP(phone);
 
     // Find user by phone
     const user = mockUsers.find((u) => u.phone === phone);
@@ -120,7 +109,3 @@ export async function POST(request: Request) {
   }
 }
 
-export function storeOTP(phone: string, otp: string) {
-  const expiresAt = Date.now() + 5 * 60 * 1000;
-  otpStore.set(phone, { otp, expiresAt });
-}

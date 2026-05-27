@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-
-// Store OTP temporarily (in production, use Redis or database)
-const otpStore = new Map<string, { otp: string; expiresAt: number }>();
+import { storeOTP } from "@/lib/otpUtils";
 
 export async function POST(request: Request) {
   try {
@@ -28,8 +26,7 @@ export async function POST(request: Request) {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
     // Store OTP with 5-minute expiry
-    const expiresAt = Date.now() + 5 * 60 * 1000;
-    otpStore.set(phone, { otp, expiresAt });
+    storeOTP(phone, otp);
 
     console.log(`[OTP] Phone: ${phone}, OTP: ${otp}`);
 
@@ -51,21 +48,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-}
-
-export function getOTP(phone: string): string | null {
-  const stored = otpStore.get(phone);
-  if (!stored) return null;
-
-  // Check if expired
-  if (stored.expiresAt < Date.now()) {
-    otpStore.delete(phone);
-    return null;
-  }
-
-  return stored.otp;
-}
-
-export function clearOTP(phone: string) {
-  otpStore.delete(phone);
 }
