@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import { mockOrders } from "@/lib/mockOrders";
 
+interface RouteContext {
+  params: Promise<{ id: string }>;
+}
+
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  context: RouteContext
 ) {
+  const params = await context.params;
   try {
     const orderId = params.id;
     const order = mockOrders.find((o) => o.id === orderId);
