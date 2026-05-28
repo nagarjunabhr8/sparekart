@@ -49,7 +49,7 @@ export default function SharedWishlistClient({
 
   if (products.length === 0) {
     return (
-      <div className="min-h-screen bg-slate-50 py-12">
+      <div data-testid="shared-wishlist-empty" className="min-h-screen bg-slate-50 py-12">
         <div className="container-app text-center">
           <h1 className="text-3xl font-bold text-neutral-900 mb-4">
             Wishlist Not Found
@@ -69,7 +69,7 @@ export default function SharedWishlistClient({
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12">
+    <div data-testid="shared-wishlist-page" className="min-h-screen bg-slate-50 py-12">
       <div className="container-app">
         <div className="mb-8 flex items-center justify-between">
           <div>

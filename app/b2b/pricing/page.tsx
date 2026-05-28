@@ -7,7 +7,7 @@ import Link from "next/link";
 
 export default function PricingPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div data-testid="pricing-page" className="min-h-screen bg-white">
 
       {/* Header */}
       <div className="bg-gradient-to-r from-primary via-primary to-blue-800 text-white py-12 md:py-16">

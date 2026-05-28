@@ -62,10 +62,10 @@ export default function BusinessProfilePage() {
   return (
     <>
       <Toaster position="top-right" />
-      <div className="bg-white rounded-lg border border-slate-200 p-6">
+      <div data-testid="account-business-profile-page" className="bg-white rounded-lg border border-slate-200 p-6">
         <h2 className="text-2xl font-bold text-neutral-900 mb-6">Business Profile</h2>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form data-testid="account-business-profile-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Company Information */}
           <div>
             <h3 className="text-lg font-semibold text-neutral-900 mb-4">Company Information</h3>

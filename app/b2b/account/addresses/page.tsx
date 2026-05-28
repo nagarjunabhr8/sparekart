@@ -106,7 +106,7 @@ export default function DeliveryAddressesPage() {
   return (
     <>
       <Toaster position="top-right" />
-      <div className="space-y-6">
+      <div data-testid="account-addresses-page" className="space-y-6">
         {/* Add/Edit Form */}
         <div className="bg-white rounded-lg border border-slate-200 p-6">
           <h2 className="text-2xl font-bold text-neutral-900 mb-6">

@@ -158,7 +158,7 @@ export default function SupportPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+    <div data-testid="support-page" className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       <div className="container-app py-12">
         <div className="mb-12">
           <h1 className="text-4xl font-bold text-neutral-900 mb-2">Support Center</h1>

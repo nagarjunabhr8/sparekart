@@ -71,6 +71,7 @@ export default function FilterPanel({ isOpen, onClose }: FilterPanelProps) {
 
       {/* Filter Panel */}
       <div
+        data-testid="filter-panel"
         className={`fixed md:relative z-50 md:z-auto left-0 top-0 w-80 max-w-[95vw] h-screen md:h-auto bg-white border-r border-slate-200 transform transition-transform duration-300 md:translate-x-0 overflow-y-auto ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
@@ -80,12 +81,13 @@ export default function FilterPanel({ isOpen, onClose }: FilterPanelProps) {
           <div>
             <h3 className="font-bold text-neutral-900">Filters</h3>
             {activeFilterCount > 0 && (
-              <p className="text-xs text-neutral-600 mt-1">
+              <p data-testid="filter-active-count" className="text-xs text-neutral-600 mt-1">
                 {activeFilterCount} active filter{activeFilterCount !== 1 ? "s" : ""}
               </p>
             )}
           </div>
           <button
+            data-testid="filter-close-button"
             onClick={onClose}
             className="md:hidden p-2 hover:bg-slate-100 rounded-lg"
           >
@@ -97,6 +99,7 @@ export default function FilterPanel({ isOpen, onClose }: FilterPanelProps) {
           {/* Clear All */}
           {activeFilterCount > 0 && (
             <button
+              data-testid="filter-clear-all-button"
               onClick={clearFilters}
               className="w-full py-2 text-center text-primary font-semibold hover:text-blue-900 transition-colors border border-primary rounded-lg"
             >
@@ -118,6 +121,7 @@ export default function FilterPanel({ isOpen, onClose }: FilterPanelProps) {
             </button>
             {expandedSections.make && (
               <select
+                data-testid="filter-make-select"
                 value={filters.make || ""}
                 onChange={(e) =>
                   updateFilter({ make: e.target.value || undefined, model: undefined })
@@ -148,6 +152,7 @@ export default function FilterPanel({ isOpen, onClose }: FilterPanelProps) {
             </button>
             {expandedSections.model && (
               <select
+                data-testid="filter-model-select"
                 value={filters.model || ""}
                 onChange={(e) => updateFilter({ model: e.target.value || undefined })}
                 disabled={!filters.make}
@@ -178,6 +183,7 @@ export default function FilterPanel({ isOpen, onClose }: FilterPanelProps) {
             {expandedSections.year && (
               <div className="mt-3 space-y-2">
                 <select
+                  data-testid="filter-min-year-select"
                   value={filters.minYear || ""}
                   onChange={(e) => updateFilter({ minYear: e.target.value || undefined })}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
@@ -190,6 +196,7 @@ export default function FilterPanel({ isOpen, onClose }: FilterPanelProps) {
                   ))}
                 </select>
                 <select
+                  data-testid="filter-max-year-select"
                   value={filters.maxYear || ""}
                   onChange={(e) => updateFilter({ maxYear: e.target.value || undefined })}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
@@ -222,6 +229,7 @@ export default function FilterPanel({ isOpen, onClose }: FilterPanelProps) {
                 {categories.map((cat) => (
                   <label key={cat} className="flex items-center gap-3 cursor-pointer">
                     <input
+                      data-testid={`filter-category-${cat.toLowerCase().replace(/\s+/g, "-")}`}
                       type="checkbox"
                       checked={filters.categories?.includes(cat) || false}
                       onChange={(e) => {
@@ -260,6 +268,7 @@ export default function FilterPanel({ isOpen, onClose }: FilterPanelProps) {
                 <div className="relative">
                   <Search size={16} className="absolute left-2 top-2.5 text-neutral-400" />
                   <input
+                    data-testid="filter-brand-search"
                     type="text"
                     placeholder="Search brands..."
                     value={searchBrand}
@@ -274,6 +283,7 @@ export default function FilterPanel({ isOpen, onClose }: FilterPanelProps) {
                     filteredBrands.map((brand) => (
                       <label key={brand} className="flex items-center gap-3 cursor-pointer">
                         <input
+                          data-testid={`filter-brand-${brand.toLowerCase()}`}
                           type="checkbox"
                           checked={filters.brands?.includes(brand) || false}
                           onChange={(e) => {
@@ -311,6 +321,7 @@ export default function FilterPanel({ isOpen, onClose }: FilterPanelProps) {
             {expandedSections.price && (
               <div className="mt-3 space-y-2">
                 <input
+                  data-testid="filter-min-price"
                   type="number"
                   placeholder="Min Price"
                   value={filters.minPrice || ""}
@@ -318,6 +329,7 @@ export default function FilterPanel({ isOpen, onClose }: FilterPanelProps) {
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
                 />
                 <input
+                  data-testid="filter-max-price"
                   type="number"
                   placeholder="Max Price"
                   value={filters.maxPrice || ""}
@@ -344,6 +356,7 @@ export default function FilterPanel({ isOpen, onClose }: FilterPanelProps) {
               <div className="mt-3 space-y-3">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
+                    data-testid="filter-in-stock-only"
                     type="checkbox"
                     checked={filters.inStock || false}
                     onChange={(e) => updateFilter({ inStock: e.target.checked ? true : undefined })}
@@ -353,6 +366,7 @@ export default function FilterPanel({ isOpen, onClose }: FilterPanelProps) {
                 </label>
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
+                    data-testid="filter-genuine-only"
                     type="checkbox"
                     checked={filters.genuine || false}
                     onChange={(e) => updateFilter({ genuine: e.target.checked ? true : undefined })}
@@ -362,6 +376,7 @@ export default function FilterPanel({ isOpen, onClose }: FilterPanelProps) {
                 </label>
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
+                    data-testid="filter-on-sale"
                     type="checkbox"
                     checked={filters.onSale || false}
                     onChange={(e) => updateFilter({ onSale: e.target.checked ? true : undefined })}

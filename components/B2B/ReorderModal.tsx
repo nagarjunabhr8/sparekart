@@ -173,15 +173,15 @@ export default function ReorderModal({ isOpen, onClose, order }: ReorderModalPro
   );
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div data-testid="reorder-modal" className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="border-b border-slate-200 px-6 py-4 flex items-center justify-between sticky top-0 bg-white">
           <div>
             <h2 className="text-xl font-bold text-neutral-900">Reorder from {order.orderNumber}</h2>
-            <p className="text-xs text-neutral-600 mt-1">Step {step} of 3</p>
+            <p data-testid="reorder-modal-step" className="text-xs text-neutral-600 mt-1">Step {step} of 3</p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded transition-colors">
+          <button data-testid="reorder-modal-close" onClick={onClose} className="p-2 hover:bg-slate-100 rounded transition-colors">
             <X size={20} />
           </button>
         </div>

@@ -62,7 +62,7 @@ const plans = [
 
 export default function B2BPricingPlans() {
   return (
-    <section className="py-16 md:py-24 bg-white border-b border-slate-200">
+    <section data-testid="b2b-pricing-plans" className="py-16 md:py-24 bg-white border-b border-slate-200">
       <div className="container-app">
         <div className="text-center mb-12 md:mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-neutral-900 mb-4">
@@ -73,9 +73,10 @@ export default function B2BPricingPlans() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-7xl mx-auto">
+        <div data-testid="b2b-pricing-plans-grid" className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-7xl mx-auto">
           {plans.map((plan) => (
             <div
+              data-testid={`b2b-pricing-plan-${plan.name.toLowerCase()}`}
               key={plan.name}
               className={`card flex flex-col overflow-hidden transition-all duration-300 ${
                 plan.highlight
@@ -137,6 +138,7 @@ export default function B2BPricingPlans() {
               {/* CTA */}
               <div className="p-6 md:p-8 border-t border-slate-200 bg-slate-50">
                 <Link
+                  data-testid={`b2b-pricing-cta-${plan.name.toLowerCase()}`}
                   href={`/b2b/signup?plan=${plan.name.toLowerCase()}`}
                   className={`block w-full py-3 px-4 rounded-lg font-semibold text-center transition-colors ${
                     plan.ctaVariant === "primary"

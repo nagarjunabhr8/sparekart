@@ -153,7 +153,7 @@ export default function TeamMembersPage() {
   return (
     <>
       <Toaster position="top-right" />
-      <div className="space-y-6">
+      <div data-testid="account-team-page" className="space-y-6">
         {/* Invite Form */}
         <div className="bg-white rounded-lg border border-slate-200 p-6">
           <h2 className="text-2xl font-bold text-neutral-900 mb-6">Invite Team Member</h2>

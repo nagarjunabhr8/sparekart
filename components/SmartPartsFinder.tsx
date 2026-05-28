@@ -56,7 +56,7 @@ export default function SmartPartsFinder() {
   };
 
   return (
-    <section className="bg-white py-12 md:py-16 border-b border-neutral-200">
+    <section data-testid="b2c-parts-finder" className="bg-white py-12 md:py-16 border-b border-neutral-200">
       <div className="container-app">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-neutral-900 mb-2">
@@ -67,7 +67,7 @@ export default function SmartPartsFinder() {
           </p>
         </div>
 
-        <form onSubmit={handleSearch} className="card p-6 md:p-8">
+        <form data-testid="b2c-parts-finder-form" onSubmit={handleSearch} className="card p-6 md:p-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
             {/* Brand */}
             <div>
@@ -75,6 +75,7 @@ export default function SmartPartsFinder() {
                 Car Brand
               </label>
               <select
+                data-testid="b2c-finder-brand"
                 value={filters.brand}
                 onChange={(e) => handleFilterChange("brand", e.target.value)}
                 className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
@@ -94,6 +95,7 @@ export default function SmartPartsFinder() {
                 Model
               </label>
               <input
+                data-testid="b2c-finder-model"
                 type="text"
                 placeholder="e.g., Swift, Creta"
                 value={filters.model}
@@ -108,6 +110,7 @@ export default function SmartPartsFinder() {
                 Year
               </label>
               <select
+                data-testid="b2c-finder-year"
                 value={filters.year}
                 onChange={(e) => handleFilterChange("year", e.target.value)}
                 className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
@@ -127,6 +130,7 @@ export default function SmartPartsFinder() {
                 Fuel Type
               </label>
               <select
+                data-testid="b2c-finder-fuel-type"
                 value={filters.fuelType}
                 onChange={(e) => handleFilterChange("fuelType", e.target.value)}
                 className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
@@ -146,6 +150,7 @@ export default function SmartPartsFinder() {
                 Part Category
               </label>
               <select
+                data-testid="b2c-finder-category"
                 value={filters.partCategory}
                 onChange={(e) =>
                   handleFilterChange("partCategory", e.target.value)
@@ -163,6 +168,7 @@ export default function SmartPartsFinder() {
           </div>
 
           <button
+            data-testid="b2c-finder-submit"
             type="submit"
             className="w-full btn-primary bg-primary hover:bg-orange-700 flex items-center justify-center gap-2 py-3"
           >

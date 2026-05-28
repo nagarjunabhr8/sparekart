@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 
 export default function Hero() {
   return (
-    <section className="bg-gradient-to-r from-secondary to-blue-800 text-white py-12 md:py-20">
+    <section data-testid="b2c-hero-section" className="bg-gradient-to-r from-secondary to-blue-800 text-white py-12 md:py-20">
       <div className="container-app">
         <div className="max-w-2xl">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
@@ -17,12 +17,14 @@ export default function Hero() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
+              data-testid="b2c-hero-start-shopping"
               href="/b2c/products"
               className="btn-primary bg-primary hover:bg-orange-700 flex items-center justify-center gap-2"
             >
               Start Shopping <ArrowRight size={18} />
             </Link>
             <Link
+              data-testid="b2c-hero-expert-help"
               href="/b2c/support"
               className="btn-outline bg-white/10 border-white text-white hover:bg-white/20"
             >

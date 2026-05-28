@@ -184,12 +184,12 @@ export default function PartDetailPage() {
   const totalRatings = ratingCounts.reduce((sum, r) => sum + r.count, 0);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div data-testid="product-detail-page" data-product-id={product.id} className="min-h-screen bg-slate-50">
       {/* Header */}
       <div className="bg-white border-b border-slate-200">
         <div className="container-app py-4">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-sm mb-6">
+          <div data-testid="product-detail-breadcrumb" className="flex items-center gap-2 text-sm mb-6">
             <Link href="/b2b" className="text-primary hover:underline">
               Home
             </Link>
@@ -208,10 +208,11 @@ export default function PartDetailPage() {
           {/* Main Content */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* LEFT: Image Gallery */}
-            <div>
+            <div data-testid="product-detail-gallery">
               <div className="relative bg-slate-100 rounded-lg aspect-square flex items-center justify-center mb-4 overflow-hidden group">
                 <div className="text-8xl">{product.images[selectedImage]}</div>
                 <button
+                  data-testid="product-detail-share"
                   onClick={handleShare}
                   className="absolute top-4 right-4 p-2 bg-white rounded-full hover:bg-slate-100 shadow-md transition-colors"
                   title="Share"
@@ -219,6 +220,7 @@ export default function PartDetailPage() {
                   <Share2 size={18} className="text-neutral-600" />
                 </button>
                 <button
+                  data-testid="product-detail-wishlist-toggle"
                   onClick={() => setIsWishlisted(!isWishlisted)}
                   className="absolute top-4 left-4 p-2 bg-white rounded-full hover:bg-slate-100 shadow-md transition-colors"
                   title="Add to wishlist"
@@ -249,14 +251,14 @@ export default function PartDetailPage() {
             </div>
 
             {/* RIGHT: Product Info */}
-            <div>
+            <div data-testid="product-detail-info">
               {/* Brand & Part Number */}
-              <p className="text-xs text-neutral-500 uppercase tracking-wide font-medium mb-2">
+              <p data-testid="product-detail-brand-partnumber" className="text-xs text-neutral-500 uppercase tracking-wide font-medium mb-2">
                 {product.brand} • {product.partNumber}
               </p>
 
               {/* Name */}
-              <h1 className="text-3xl font-bold text-neutral-900 mb-4">
+              <h1 data-testid="product-detail-name" className="text-3xl font-bold text-neutral-900 mb-4">
                 {product.name}
               </h1>
 
@@ -299,7 +301,7 @@ export default function PartDetailPage() {
               </div>
 
               {/* Stock Widget */}
-              <div className="mb-4 pb-4 border-b border-slate-200 bg-green-50 p-3 rounded-lg border border-green-200">
+              <div data-testid="product-detail-stock" className="mb-4 pb-4 border-b border-slate-200 bg-green-50 p-3 rounded-lg border border-green-200">
                 {product.stock.status === "in-stock" ? (
                   <p className="text-sm font-medium text-green-700">
                     ✓ In Stock ({product.stock.quantity} units available)
@@ -339,17 +341,19 @@ export default function PartDetailPage() {
                 </div>
 
                 {/* Quantity Stepper */}
-                <div className="mb-4">
+                <div data-testid="product-detail-quantity-stepper" className="mb-4">
                   <p className="text-sm font-medium text-neutral-900 mb-3">Quantity (1–50)</p>
                   <div className="flex items-center gap-3 bg-slate-100 p-2 rounded-lg w-fit">
                     <button
+                      data-testid="product-detail-qty-decrement"
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
                       className="px-3 py-1 hover:bg-slate-200 rounded transition-colors"
                     >
                       −
                     </button>
-                    <span className="w-8 text-center font-semibold">{quantity}</span>
+                    <span data-testid="product-detail-qty-value" className="w-8 text-center font-semibold">{quantity}</span>
                     <button
+                      data-testid="product-detail-qty-increment"
                       onClick={() => setQuantity(Math.min(50, quantity + 1))}
                       className="px-3 py-1 hover:bg-slate-200 rounded transition-colors"
                     >
@@ -374,6 +378,7 @@ export default function PartDetailPage() {
               {/* Buttons */}
               <div className="space-y-3">
                 <button
+                  data-testid="product-detail-add-to-cart"
                   onClick={handleAddToCart}
                   className="w-full py-3 bg-neutral-900 text-white font-semibold rounded-lg hover:bg-orange-500 transition-colors flex items-center justify-center gap-2"
                 >
@@ -381,6 +386,7 @@ export default function PartDetailPage() {
                   Add to Cart
                 </button>
                 <button
+                  data-testid="product-detail-bulk-order"
                   onClick={() => setShowBulkModal(true)}
                   className="w-full py-3 bg-slate-200 text-neutral-900 font-semibold rounded-lg hover:bg-slate-300 transition-colors"
                 >

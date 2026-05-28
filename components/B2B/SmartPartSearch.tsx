@@ -215,10 +215,11 @@ export default function SmartPartSearch() {
   }, []);
 
   return (
-    <div className="w-full space-y-4">
+    <div data-testid="smart-part-search" className="w-full space-y-4">
       {/* Search Mode Toggle */}
       <div className="flex gap-2">
         <button
+          data-testid="smart-search-mode-parts"
           onClick={() => setIsVehicleMode(false)}
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
             !isVehicleMode
@@ -230,6 +231,7 @@ export default function SmartPartSearch() {
           Search Parts
         </button>
         <button
+          data-testid="smart-search-mode-vehicle"
           onClick={() => setIsVehicleMode(true)}
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
             isVehicleMode
@@ -248,6 +250,7 @@ export default function SmartPartSearch() {
           <div className="flex items-center gap-2 bg-white border border-slate-300 rounded-lg focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent transition-all">
             <Search size={20} className="text-neutral-400 ml-3" />
             <input
+              data-testid="smart-search-input"
               ref={searchInputRef}
               type="text"
               value={query}
@@ -259,6 +262,7 @@ export default function SmartPartSearch() {
             />
             {query && (
               <button
+                data-testid="smart-search-clear"
                 onClick={handleClear}
                 className="p-2 text-neutral-400 hover:text-neutral-600"
               >
@@ -266,6 +270,7 @@ export default function SmartPartSearch() {
               </button>
             )}
             <button
+              data-testid="smart-search-voice"
               onClick={handleVoiceSearch}
               disabled={isVoiceSearching}
               className={`p-2 mr-2 rounded-lg transition-colors ${
@@ -282,6 +287,7 @@ export default function SmartPartSearch() {
           {/* Autocomplete Dropdown */}
           {isOpen && (
             <div
+              data-testid="smart-search-dropdown"
               ref={dropdownRef}
               className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto"
             >
@@ -351,7 +357,7 @@ export default function SmartPartSearch() {
 
       {/* Vehicle Search Mode */}
       {isVehicleMode && (
-        <div className="bg-neutral-50 border border-slate-200 rounded-lg p-4 space-y-4">
+        <div data-testid="smart-search-vehicle-form" className="bg-neutral-50 border border-slate-200 rounded-lg p-4 space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             {/* Make */}
             <div>
@@ -359,6 +365,7 @@ export default function SmartPartSearch() {
                 Vehicle Make *
               </label>
               <select
+                data-testid="smart-search-vehicle-make"
                 value={vehicleFilters.make}
                 onChange={(e) =>
                   setVehicleFilters({
@@ -384,6 +391,7 @@ export default function SmartPartSearch() {
                 Model
               </label>
               <select
+                data-testid="smart-search-vehicle-model"
                 value={vehicleFilters.model}
                 onChange={(e) =>
                   setVehicleFilters({
@@ -412,6 +420,7 @@ export default function SmartPartSearch() {
                 Year *
               </label>
               <select
+                data-testid="smart-search-vehicle-year"
                 value={vehicleFilters.year}
                 onChange={(e) =>
                   setVehicleFilters({
@@ -436,6 +445,7 @@ export default function SmartPartSearch() {
                 Part Type
               </label>
               <select
+                data-testid="smart-search-vehicle-part-type"
                 value={vehicleFilters.partType}
                 onChange={(e) =>
                   setVehicleFilters({
@@ -456,6 +466,7 @@ export default function SmartPartSearch() {
           </div>
 
           <button
+            data-testid="smart-search-vehicle-submit"
             onClick={handleVehicleSearch}
             className="w-full px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
           >

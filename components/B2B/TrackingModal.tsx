@@ -33,15 +33,15 @@ export default function TrackingModal({ isOpen, onClose, order }: TrackingModalP
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div data-testid="tracking-modal" className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold text-neutral-900">Track Your Order</h2>
-            <p className="text-sm text-neutral-600 mt-1">{order.orderNumber}</p>
+            <p data-testid="tracking-modal-order-number" className="text-sm text-neutral-600 mt-1">{order.orderNumber}</p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded transition-colors">
+          <button data-testid="tracking-modal-close" onClick={onClose} className="p-2 hover:bg-slate-100 rounded transition-colors">
             <X size={20} />
           </button>
         </div>

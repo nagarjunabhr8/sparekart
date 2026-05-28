@@ -36,7 +36,7 @@ export default function GuestTrackingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5">
+    <div data-testid="track-page" className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5">
       {/* Header */}
       <div className="bg-white border-b border-slate-200">
         <div className="container-app py-8">

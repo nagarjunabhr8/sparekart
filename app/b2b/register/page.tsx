@@ -452,7 +452,7 @@ export default function RegisterPage() {
   return (
     <>
       <Toaster position="top-right" />
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-neutral-50 py-12 px-4 sm:px-6">
+      <div data-testid="register-page" className="min-h-screen bg-gradient-to-br from-blue-50 to-neutral-50 py-12 px-4 sm:px-6">
         <div className="max-w-2xl mx-auto">
           {/* Header */}
           <div className="mb-8">
@@ -465,10 +465,10 @@ export default function RegisterPage() {
           </div>
 
           {/* Progress bar */}
-          <div className="mb-8">
+          <div data-testid="register-progress" className="mb-8">
             <div className="flex items-center justify-between mb-2">
               <div className="flex-1">
-                <div className="text-sm font-medium text-neutral-900">
+                <div data-testid="register-step-indicator" className="text-sm font-medium text-neutral-900">
                   Step {currentStep} of 3
                 </div>
               </div>
@@ -501,7 +501,7 @@ export default function RegisterPage() {
           <div className="bg-white rounded-xl shadow-lg p-8">
             {/* Step 1: Business Info */}
             {currentStep === 1 && (
-              <div className="space-y-6">
+              <div data-testid="register-step-1" className="space-y-6">
                 <h2 className="text-2xl font-bold text-neutral-900">
                   Business Information
                 </h2>
@@ -511,13 +511,14 @@ export default function RegisterPage() {
                     Business Name *
                   </label>
                   <input
+                    data-testid="register-business-name-input"
                     type="text"
                     {...businessForm.register("businessName")}
                     className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     placeholder="Your business name"
                   />
                   {businessForm.formState.errors.businessName && (
-                    <p className="text-red-600 text-sm mt-1">
+                    <p data-testid="register-business-name-error" className="text-red-600 text-sm mt-1">
                       {businessForm.formState.errors.businessName.message}
                     </p>
                   )}
@@ -528,6 +529,7 @@ export default function RegisterPage() {
                     GST Number *
                   </label>
                   <input
+                    data-testid="register-gst-input"
                     type="text"
                     {...businessForm.register("gstNumber")}
                     onChange={(e) => {
@@ -541,7 +543,7 @@ export default function RegisterPage() {
                     maxLength={15}
                   />
                   {businessForm.formState.errors.gstNumber && (
-                    <p className="text-red-600 text-sm mt-1">
+                    <p data-testid="register-gst-error" className="text-red-600 text-sm mt-1">
                       {businessForm.formState.errors.gstNumber.message}
                     </p>
                   )}
@@ -552,6 +554,7 @@ export default function RegisterPage() {
                     Business Type *
                   </label>
                   <select
+                    data-testid="register-business-type-select"
                     {...businessForm.register("businessType")}
                     className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   >
@@ -563,7 +566,7 @@ export default function RegisterPage() {
                     ))}
                   </select>
                   {businessForm.formState.errors.businessType && (
-                    <p className="text-red-600 text-sm mt-1">
+                    <p data-testid="register-business-type-error" className="text-red-600 text-sm mt-1">
                       {businessForm.formState.errors.businessType.message}
                     </p>
                   )}
@@ -574,6 +577,7 @@ export default function RegisterPage() {
                     Pincode *
                   </label>
                   <input
+                    data-testid="register-pincode-input"
                     type="text"
                     value={businessForm.watch("pincode")}
                     onChange={(e) =>
@@ -584,7 +588,7 @@ export default function RegisterPage() {
                     maxLength={6}
                   />
                   {businessForm.formState.errors.pincode && (
-                    <p className="text-red-600 text-sm mt-1">
+                    <p data-testid="register-pincode-error" className="text-red-600 text-sm mt-1">
                       {businessForm.formState.errors.pincode.message}
                     </p>
                   )}
@@ -596,6 +600,7 @@ export default function RegisterPage() {
                       City *
                     </label>
                     <input
+                      data-testid="register-city-input"
                       type="text"
                       {...businessForm.register("city")}
                       readOnly
@@ -608,6 +613,7 @@ export default function RegisterPage() {
                       State *
                     </label>
                     <input
+                      data-testid="register-state-input"
                       type="text"
                       {...businessForm.register("state")}
                       readOnly
@@ -622,6 +628,7 @@ export default function RegisterPage() {
                     Years in Business
                   </label>
                   <input
+                    data-testid="register-years-input"
                     type="number"
                     {...businessForm.register("yearsInBusiness")}
                     className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
@@ -634,7 +641,7 @@ export default function RegisterPage() {
 
             {/* Step 2: Contact & Security */}
             {currentStep === 2 && (
-              <div className="space-y-6">
+              <div data-testid="register-step-2" className="space-y-6">
                 <h2 className="text-2xl font-bold text-neutral-900">
                   Contact & Security
                 </h2>
@@ -644,13 +651,14 @@ export default function RegisterPage() {
                     Owner/Manager Name *
                   </label>
                   <input
+                    data-testid="register-owner-name-input"
                     type="text"
                     {...contactForm.register("ownerName")}
                     className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     placeholder="Full name"
                   />
                   {contactForm.formState.errors.ownerName && (
-                    <p className="text-red-600 text-sm mt-1">
+                    <p data-testid="register-owner-name-error" className="text-red-600 text-sm mt-1">
                       {contactForm.formState.errors.ownerName.message}
                     </p>
                   )}
@@ -665,12 +673,14 @@ export default function RegisterPage() {
                   {!contactForm.watch("otpVerified") ? (
                     <div className="space-y-3">
                       <input
+                        data-testid="register-mobile-input"
                         type="tel"
                         {...contactForm.register("mobile")}
                         className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                         placeholder="+919876543210"
                       />
                       <button
+                        data-testid="register-send-otp-button"
                         onClick={handleSendOTP}
                         disabled={isLoading}
                         className="w-full py-2 bg-primary text-white font-medium rounded-lg hover:bg-blue-900 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
@@ -680,10 +690,11 @@ export default function RegisterPage() {
                       </button>
 
                       {otpSent && (
-                        <div className="space-y-3 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                          <div className="flex gap-2">
+                        <div data-testid="register-otp-section" className="space-y-3 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                          <div data-testid="register-otp-input-group" className="flex gap-2">
                             {otp.map((digit, index) => (
                               <input
+                                data-testid={`register-otp-digit-${index}`}
                                 key={index}
                                 ref={(el) => {
                                   otpRefs.current[index] = el;
@@ -700,12 +711,13 @@ export default function RegisterPage() {
                           </div>
 
                           {demoOTP && (
-                            <div className="text-sm text-blue-900">
+                            <div data-testid="register-demo-otp" className="text-sm text-blue-900">
                               <strong>Demo OTP:</strong> {demoOTP}
                             </div>
                           )}
 
                           <button
+                            data-testid="register-resend-otp-button"
                             onClick={() => {
                               setOtpSent(false);
                               setOtp(["", "", "", "", "", ""]);
@@ -719,7 +731,7 @@ export default function RegisterPage() {
                       )}
                     </div>
                   ) : (
-                    <div className="flex items-center gap-3 px-4 py-3 bg-green-50 border border-green-300 rounded-lg">
+                    <div data-testid="register-phone-verified" className="flex items-center gap-3 px-4 py-3 bg-green-50 border border-green-300 rounded-lg">
                       <Check size={20} className="text-green-600" />
                       <div>
                         <p className="text-green-900 font-medium">Phone Verified</p>
@@ -734,6 +746,7 @@ export default function RegisterPage() {
                     Email Address *
                   </label>
                   <input
+                    data-testid="register-email-input"
                     type="email"
                     {...contactForm.register("email")}
                     onChange={(e) => {
@@ -746,7 +759,7 @@ export default function RegisterPage() {
                     placeholder="your@company.com"
                   />
                   {contactForm.formState.errors.email && (
-                    <p className="text-red-600 text-sm mt-1">
+                    <p data-testid="register-email-error" className="text-red-600 text-sm mt-1">
                       {contactForm.formState.errors.email.message}
                     </p>
                   )}
@@ -758,6 +771,7 @@ export default function RegisterPage() {
                   </label>
                   <div className="relative">
                     <input
+                      data-testid="register-password-input"
                       type="password"
                       {...contactForm.register("password")}
                       className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
@@ -796,13 +810,14 @@ export default function RegisterPage() {
                     Confirm Password *
                   </label>
                   <input
+                    data-testid="register-confirm-password-input"
                     type="password"
                     {...contactForm.register("confirmPassword")}
                     className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     placeholder="••••••••"
                   />
                   {contactForm.formState.errors.confirmPassword && (
-                    <p className="text-red-600 text-sm mt-1">
+                    <p data-testid="register-confirm-password-error" className="text-red-600 text-sm mt-1">
                       {contactForm.formState.errors.confirmPassword.message}
                     </p>
                   )}
@@ -812,7 +827,7 @@ export default function RegisterPage() {
 
             {/* Step 3: Plan Selection */}
             {currentStep === 3 && (
-              <div className="space-y-6">
+              <div data-testid="register-step-3" className="space-y-6">
                 <h2 className="text-2xl font-bold text-neutral-900">
                   Select Your Plan
                 </h2>
@@ -822,6 +837,7 @@ export default function RegisterPage() {
                     Estimated Monthly Spend (Optional)
                   </label>
                   <select
+                    data-testid="register-estimated-spend-select"
                     {...planForm.register("estimatedSpend")}
                     className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   >
@@ -834,9 +850,10 @@ export default function RegisterPage() {
                   </select>
                 </div>
 
-                <div className="grid gap-6 md:grid-cols-3">
+                <div data-testid="register-plans-grid" className="grid gap-6 md:grid-cols-3">
                   {PLANS.map((plan) => (
                     <div
+                      data-testid={`register-plan-card-${plan.id}`}
                       key={plan.id}
                       onClick={() => planForm.setValue("selectedPlan", plan.id as any)}
                       className={`relative border-2 rounded-xl p-6 cursor-pointer transition-all ${
@@ -900,8 +917,9 @@ export default function RegisterPage() {
             )}
 
             {/* Navigation buttons */}
-            <div className="flex gap-4 mt-8 pt-6 border-t border-neutral-200">
+            <div data-testid="register-nav-buttons" className="flex gap-4 mt-8 pt-6 border-t border-neutral-200">
               <button
+                data-testid="register-back-button"
                 onClick={handlePrevStep}
                 disabled={currentStep === 1 || isLoading}
                 className="flex-1 py-3 border-2 border-neutral-300 text-neutral-900 font-semibold rounded-lg hover:bg-neutral-50 disabled:opacity-50 transition-colors"
@@ -911,6 +929,7 @@ export default function RegisterPage() {
 
               {currentStep < 3 ? (
                 <button
+                  data-testid="register-next-button"
                   onClick={handleNextStep}
                   disabled={isLoading}
                   className="flex-1 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-blue-900 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
@@ -920,6 +939,7 @@ export default function RegisterPage() {
                 </button>
               ) : (
                 <button
+                  data-testid="register-submit-button"
                   onClick={handleSubmit}
                   disabled={isLoading}
                   className="flex-1 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
@@ -934,7 +954,7 @@ export default function RegisterPage() {
           {/* Sign in link */}
           <p className="text-center text-neutral-600 mt-6">
             Already have an account?{" "}
-            <a href="/b2b/login" className="text-primary hover:underline font-semibold">
+            <a data-testid="register-signin-link" href="/b2b/login" className="text-primary hover:underline font-semibold">
               Sign In
             </a>
           </p>

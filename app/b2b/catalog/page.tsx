@@ -110,19 +110,20 @@ function CatalogContent() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div data-testid="catalog-page" className="min-h-screen bg-slate-50">
       {/* Header */}
       <div className="bg-white border-b border-slate-200">
         <div className="container-app py-4">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-3xl font-bold text-neutral-900">Spare Parts Catalog</h1>
-              <p className="text-neutral-600 text-sm mt-1">
+              <p data-testid="catalog-result-count" className="text-neutral-600 text-sm mt-1">
                 {allFilteredProducts.length} parts found
               </p>
             </div>
             <div className="flex gap-3">
               <button
+                data-testid="catalog-bulk-order-button"
                 onClick={() => setBulkOrderOpen(true)}
                 className="flex items-center gap-2 px-4 py-2 bg-secondary text-white rounded-lg hover:bg-blue-900 transition-colors"
               >
@@ -130,6 +131,7 @@ function CatalogContent() {
                 Bulk Order
               </button>
               <button
+                data-testid="catalog-mobile-filter-toggle"
                 onClick={() => setFilterPanelOpen(true)}
                 className="md:hidden flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-orange-600 transition-colors"
               >
@@ -159,6 +161,7 @@ function CatalogContent() {
             <div className="flex items-center gap-3">
               {/* Sort */}
               <select
+                data-testid="catalog-sort-select"
                 value={filters.sort || "popular"}
                 onChange={(e) => handleSortChange(e.target.value)}
                 className="px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
@@ -171,8 +174,9 @@ function CatalogContent() {
               </select>
 
               {/* View Toggle */}
-              <div className="flex gap-1 bg-slate-200 rounded-lg p-1">
+              <div data-testid="catalog-view-toggle" className="flex gap-1 bg-slate-200 rounded-lg p-1">
                 <button
+                  data-testid="catalog-view-grid"
                   onClick={() => handleViewChange("grid")}
                   className={`p-2 rounded transition-colors ${
                     filters.view === "list" || !filters.view
@@ -183,6 +187,7 @@ function CatalogContent() {
                   <Grid3x3 size={18} />
                 </button>
                 <button
+                  data-testid="catalog-view-list"
                   onClick={() => handleViewChange("list")}
                   className={`p-2 rounded transition-colors ${
                     filters.view === "list"
@@ -208,7 +213,7 @@ function CatalogContent() {
           <div className="flex-1">
             {allFilteredProducts.length === 0 ? (
               // Empty State
-              <div className="text-center py-16">
+              <div data-testid="catalog-empty-state" className="text-center py-16">
                 <div className="text-6xl mb-4">🔍</div>
                 <h3 className="text-2xl font-bold text-neutral-900 mb-2">
                   No parts found
@@ -218,6 +223,7 @@ function CatalogContent() {
                   parts available.
                 </p>
                 <button
+                  data-testid="catalog-clear-filters-button"
                   onClick={() => window.location.reload()}
                   className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-blue-900 transition-colors"
                 >
@@ -228,6 +234,7 @@ function CatalogContent() {
               <>
                 {/* Products */}
                 <div
+                  data-testid="catalog-products-grid"
                   className={`grid gap-4 ${
                     filters.view === "list"
                       ? "grid-cols-1"
@@ -253,12 +260,13 @@ function CatalogContent() {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="mt-12 flex flex-col sm:flex-row items-center justify-between">
-                    <p className="text-sm text-neutral-600 mb-4 sm:mb-0">
+                  <div data-testid="catalog-pagination" className="mt-12 flex flex-col sm:flex-row items-center justify-between">
+                    <p data-testid="catalog-page-indicator" className="text-sm text-neutral-600 mb-4 sm:mb-0">
                       Page {currentPage} of {totalPages}
                     </p>
                     <div className="flex gap-2">
                       <button
+                        data-testid="catalog-pagination-prev"
                         onClick={() => handlePageChange(currentPage - 1)}
                         disabled={currentPage === 1}
                         className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
@@ -281,6 +289,7 @@ function CatalogContent() {
                                 <span className="px-2 py-2 text-neutral-600">...</span>
                               )}
                               <button
+                                data-testid={`catalog-pagination-page-${page}`}
                                 onClick={() => handlePageChange(page)}
                                 className={`px-4 py-2 rounded-lg transition-colors ${
                                   currentPage === page
@@ -295,6 +304,7 @@ function CatalogContent() {
                       </div>
 
                       <button
+                        data-testid="catalog-pagination-next"
                         onClick={() => handlePageChange(currentPage + 1)}
                         disabled={currentPage === totalPages}
                         className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"

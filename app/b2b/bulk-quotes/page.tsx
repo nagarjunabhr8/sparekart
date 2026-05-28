@@ -103,14 +103,14 @@ export default function BulkQuotesPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div data-testid="bulk-quotes-loading" className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-neutral-600">Loading bulk quotes...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div data-testid="bulk-quotes-page" className="min-h-screen bg-slate-50">
       <div className="bg-white border-b border-slate-200">
         <div className="container-app py-6">
           <div className="flex items-center justify-between mb-6">

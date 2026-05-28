@@ -66,7 +66,7 @@ export default function ProductCard({ product, view = "grid" }: ProductCardProps
   };
   if (view === "list") {
     return (
-      <div className="card p-4 md:p-6 border border-slate-200 hover:shadow-lg transition-shadow flex gap-4">
+      <div data-testid={`product-card-${product.id}`} data-product-id={product.id} className="card p-4 md:p-6 border border-slate-200 hover:shadow-lg transition-shadow flex gap-4">
         {/* Image */}
         <div className="flex-shrink-0 w-24 h-24 md:w-32 md:h-32 bg-slate-100 rounded-lg overflow-hidden relative group">
           <img
@@ -76,6 +76,7 @@ export default function ProductCard({ product, view = "grid" }: ProductCardProps
           />
           {/* Wishlist Heart for List View */}
           <button
+            data-testid="product-card-wishlist-toggle"
             onClick={(e) => {
               e.preventDefault();
               handleToggleWishlist();
@@ -151,6 +152,7 @@ export default function ProductCard({ product, view = "grid" }: ProductCardProps
                 />
                 {!product.inStock && (
                   <button
+                    data-testid="product-card-notify-me"
                     onClick={() => setShowNotifyModal(true)}
                     className="text-xs font-medium text-primary hover:text-blue-900 flex items-center gap-1 px-2 py-1 hover:bg-blue-50 rounded transition-colors"
                   >
@@ -161,6 +163,7 @@ export default function ProductCard({ product, view = "grid" }: ProductCardProps
               </div>
             </div>
             <button
+              data-testid="product-card-add-to-cart"
               onClick={handleAddToCart}
               disabled={!product.inStock || isAdding}
               className={`py-2 px-4 rounded-lg font-semibold text-white transition-colors flex items-center gap-2 ${
@@ -179,7 +182,7 @@ export default function ProductCard({ product, view = "grid" }: ProductCardProps
   }
 
   return (
-    <div className="card overflow-hidden border border-slate-200 hover:shadow-lg transition-all duration-300 flex flex-col h-full">
+    <div data-testid={`product-card-${product.id}`} data-product-id={product.id} className="card overflow-hidden border border-slate-200 hover:shadow-lg transition-all duration-300 flex flex-col h-full">
       {/* Image Container */}
       <div className="relative h-48 bg-slate-100 overflow-hidden group">
         <img
@@ -189,6 +192,7 @@ export default function ProductCard({ product, view = "grid" }: ProductCardProps
         />
         {/* Wishlist Heart Icon */}
         <button
+          data-testid="product-card-wishlist-toggle"
           onClick={(e) => {
             e.preventDefault();
             handleToggleWishlist();
@@ -274,6 +278,7 @@ export default function ProductCard({ product, view = "grid" }: ProductCardProps
         {/* Notify Me Button for OOS */}
         {!product.inStock && (
           <button
+            data-testid="product-card-notify-me"
             onClick={() => setShowNotifyModal(true)}
             className="w-full py-2 mb-3 bg-slate-100 hover:bg-slate-200 text-neutral-700 font-medium rounded-lg flex items-center justify-center gap-2 transition-colors text-sm"
           >
@@ -296,6 +301,7 @@ export default function ProductCard({ product, view = "grid" }: ProductCardProps
 
         {/* Button */}
         <button
+          data-testid="product-card-add-to-cart"
           onClick={handleAddToCart}
           disabled={!product.inStock || isAdding}
           className={`w-full py-2 rounded-lg font-semibold text-white transition-colors flex items-center justify-center gap-2 mt-auto ${

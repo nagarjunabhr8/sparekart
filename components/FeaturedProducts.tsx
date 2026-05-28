@@ -78,7 +78,7 @@ const featuredProducts: Product[] = [
 
 export default function FeaturedProducts() {
   return (
-    <section className="bg-white py-12 md:py-16 border-b border-neutral-200">
+    <section data-testid="b2c-featured-products" className="bg-white py-12 md:py-16 border-b border-neutral-200">
       <div className="container-app">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -90,6 +90,7 @@ export default function FeaturedProducts() {
             </p>
           </div>
           <Link
+            data-testid="b2c-featured-view-all-link"
             href="/b2c/products"
             className="text-primary font-semibold hover:text-orange-700 transition-colors hidden md:block"
           >
@@ -97,9 +98,11 @@ export default function FeaturedProducts() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div data-testid="b2c-featured-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {featuredProducts.map((product) => (
             <Link
+              data-testid={`b2c-featured-product-${product.id}`}
+              data-product-id={product.id}
               key={product.id}
               href={`/b2c/products/${product.id}`}
               className="card overflow-hidden hover:shadow-lg transition-all duration-300 group"
@@ -186,7 +189,7 @@ export default function FeaturedProducts() {
                   >
                     {product.inStock ? "✓ In Stock" : "Out of Stock"}
                   </p>
-                  <button className="w-full btn-primary bg-primary hover:bg-orange-700 text-sm flex items-center justify-center gap-2 py-2">
+                  <button data-testid={`b2c-featured-add-to-cart-${product.id}`} className="w-full btn-primary bg-primary hover:bg-orange-700 text-sm flex items-center justify-center gap-2 py-2">
                     <ShoppingCart size={16} />
                     Add to Cart
                   </button>

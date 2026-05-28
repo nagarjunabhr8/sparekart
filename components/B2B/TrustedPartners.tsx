@@ -62,7 +62,7 @@ const stats = [
 
 export default function B2BTrustedPartners() {
   return (
-    <section className="py-16 md:py-24 bg-gradient-to-b from-slate-50 to-white border-b border-slate-200">
+    <section data-testid="b2b-trusted-partners" className="py-16 md:py-24 bg-gradient-to-b from-slate-50 to-white border-b border-slate-200">
       <div className="container-app">
         <div className="text-center mb-12 md:mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-neutral-900 mb-4">
@@ -74,11 +74,13 @@ export default function B2BTrustedPartners() {
         </div>
 
         {/* Stats */}
-        <div className="grid md:grid-cols-3 gap-6 mb-12 md:mb-16">
+        <div data-testid="b2b-stats-grid" className="grid md:grid-cols-3 gap-6 mb-12 md:mb-16">
           {stats.map((stat) => {
             const Icon = stat.icon;
+            const slug = stat.label.toLowerCase().replace(/\s+/g, "-");
             return (
               <div
+                data-testid={`b2b-stat-${slug}`}
                 key={stat.label}
                 className="card p-8 text-center border border-slate-100"
               >
@@ -93,9 +95,10 @@ export default function B2BTrustedPartners() {
         </div>
 
         {/* Testimonials */}
-        <div className="grid md:grid-cols-2 gap-6">
+        <div data-testid="b2b-testimonials" className="grid md:grid-cols-2 gap-6">
           {partners.map((partner) => (
             <div
+              data-testid={`b2b-testimonial-${partner.name.toLowerCase().replace(/\s+/g, "-")}`}
               key={partner.name}
               className="card p-6 md:p-8 border border-slate-100 hover:shadow-lg transition-shadow"
             >
@@ -132,7 +135,7 @@ export default function B2BTrustedPartners() {
         </div>
 
         {/* CTA Section */}
-        <div className="mt-12 md:mt-16 bg-gradient-to-r from-primary to-blue-800 rounded-lg p-8 md:p-12 text-white text-center">
+        <div data-testid="b2b-trusted-cta" className="mt-12 md:mt-16 bg-gradient-to-r from-primary to-blue-800 rounded-lg p-8 md:p-12 text-white text-center">
           <h3 className="text-2xl md:text-3xl font-bold mb-4">
             Join 500+ Successful Workshops
           </h3>
@@ -141,10 +144,10 @@ export default function B2BTrustedPartners() {
             professional solutions.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-accent hover:bg-orange-600 text-white font-semibold py-3 px-8 rounded-lg transition-colors">
+            <button data-testid="b2b-trusted-browse-catalog" className="bg-accent hover:bg-orange-600 text-white font-semibold py-3 px-8 rounded-lg transition-colors">
               Browse Catalog Now
             </button>
-            <button className="border-2 border-white text-white hover:bg-white/10 font-semibold py-3 px-8 rounded-lg transition-colors">
+            <button data-testid="b2b-trusted-request-demo" className="border-2 border-white text-white hover:bg-white/10 font-semibold py-3 px-8 rounded-lg transition-colors">
               Request Demo
             </button>
           </div>

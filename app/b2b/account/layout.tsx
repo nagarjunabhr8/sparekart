@@ -53,12 +53,12 @@ export default function AccountLayout({
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div data-testid="account-layout" className="min-h-screen bg-slate-50">
       {/* Header */}
       <div className="bg-white border-b border-slate-200">
         <div className="container-app py-6">
           <h1 className="text-3xl font-bold text-neutral-900">Account Settings</h1>
-          <p className="text-neutral-600 text-sm mt-1">{user?.companyName}</p>
+          <p data-testid="account-company-name" className="text-neutral-600 text-sm mt-1">{user?.companyName}</p>
         </div>
       </div>
 
@@ -66,9 +66,9 @@ export default function AccountLayout({
       <div className="container-app py-8">
         <div className="flex gap-6">
           {/* Sidebar */}
-          <div className="w-64 flex-shrink-0">
+          <div data-testid="account-sidebar" className="w-64 flex-shrink-0">
             <div className="bg-white rounded-lg border border-slate-200 overflow-hidden sticky top-20">
-              <nav className="divide-y divide-slate-200">
+              <nav data-testid="account-nav" className="divide-y divide-slate-200">
                 {accountTabs.map((tab) => {
                   const Icon = tab.icon;
                   const isActive =
@@ -76,8 +76,10 @@ export default function AccountLayout({
                     (tab.href !== "/b2b/account" &&
                       pathname.startsWith(tab.href));
 
+                  const slug = tab.href.split("/").pop() || "profile";
                   return (
                     <button
+                      data-testid={`account-nav-${slug}`}
                       key={tab.href}
                       onClick={() => router.push(tab.href)}
                       className={`w-full flex items-center gap-3 px-4 py-4 text-left transition-colors ${
@@ -96,6 +98,7 @@ export default function AccountLayout({
               {/* Logout Button */}
               <div className="p-4 border-t border-slate-200">
                 <button
+                  data-testid="account-logout-button"
                   onClick={handleLogout}
                   className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-50 text-red-700 hover:bg-red-100 rounded-lg transition-colors font-medium text-sm"
                 >
@@ -107,7 +110,7 @@ export default function AccountLayout({
           </div>
 
           {/* Content */}
-          <div className="flex-1">{children}</div>
+          <div data-testid="account-content" className="flex-1">{children}</div>
         </div>
       </div>
     </div>

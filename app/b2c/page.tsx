@@ -6,7 +6,7 @@ import CategoriesGrid from "@/components/CategoriesGrid";
 
 export default function B2CHome() {
   return (
-    <div className="bg-white">
+    <div data-testid="b2c-home-page" className="bg-white">
       <Hero />
       <SmartPartsFinder />
       <CategoriesGrid />

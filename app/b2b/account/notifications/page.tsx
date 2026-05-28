@@ -92,7 +92,7 @@ export default function NotificationsPage() {
   return (
     <>
       <Toaster position="top-right" />
-      <div className="space-y-6">
+      <div data-testid="account-notifications-page" className="space-y-6">
         {/* Header */}
         <div>
           <h2 className="text-2xl font-bold text-neutral-900 mb-2">Notification Preferences</h2>

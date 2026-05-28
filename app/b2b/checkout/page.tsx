@@ -23,7 +23,7 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div data-testid="checkout-empty-page" className="min-h-screen bg-slate-50">
         <div className="container-app py-8">
           <div className="text-center py-16">
             <h2 className="text-2xl font-bold text-neutral-900 mb-4">Your cart is empty</h2>
@@ -82,7 +82,7 @@ export default function CheckoutPage() {
   return (
     <>
       <Toaster position="top-right" />
-      <div className="min-h-screen bg-slate-50">
+      <div data-testid="checkout-page" className="min-h-screen bg-slate-50">
         {/* Header */}
         <div className="bg-white border-b border-slate-200">
           <div className="container-app py-6">

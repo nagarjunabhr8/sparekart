@@ -69,12 +69,13 @@ export default function CancelOrderModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div data-testid="cancel-order-modal" className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg max-w-md w-full">
         {/* Header */}
         <div className="border-b border-slate-200 px-6 py-4 flex items-center justify-between">
           <h2 className="text-xl font-bold text-neutral-900">Cancel Order</h2>
           <button
+            data-testid="cancel-order-modal-close"
             onClick={onClose}
             disabled={isLoading}
             className="p-2 hover:bg-slate-100 rounded transition-colors disabled:opacity-50"
@@ -124,6 +125,7 @@ export default function CancelOrderModal({
               Reason for cancellation (optional)
             </label>
             <textarea
+              data-testid="cancel-order-reason"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Tell us why you're cancelling this order..."
@@ -145,6 +147,7 @@ export default function CancelOrderModal({
         {/* Footer */}
         <div className="border-t border-slate-200 px-6 py-4 flex gap-3">
           <button
+            data-testid="cancel-order-keep-button"
             onClick={onClose}
             disabled={isLoading}
             className="flex-1 px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors font-medium disabled:opacity-50"
@@ -152,6 +155,7 @@ export default function CancelOrderModal({
             Keep Order
           </button>
           <button
+            data-testid="cancel-order-confirm-button"
             onClick={handleCancel}
             disabled={isLoading}
             className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"

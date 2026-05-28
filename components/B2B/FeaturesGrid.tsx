@@ -67,7 +67,7 @@ export default function B2BFeaturesGrid() {
   };
 
   return (
-    <section className="py-16 md:py-24 bg-gradient-to-b from-white to-slate-50 border-b border-slate-200">
+    <section data-testid="b2b-features-grid" className="py-16 md:py-24 bg-gradient-to-b from-white to-slate-50 border-b border-slate-200">
       <div className="container-app">
         <div className="text-center mb-12 md:mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-neutral-900 mb-4">
@@ -87,8 +87,10 @@ export default function B2BFeaturesGrid() {
             const isQuickOnboarding = feature.title === "Quick Onboarding";
             const isClickable = isBulkPricing || isCostControl || isDedicatedSupport || isQuickOnboarding;
 
+            const slug = feature.title.toLowerCase().replace(/\s+/g, "-");
             return (
               <div
+                data-testid={`b2b-feature-${slug}`}
                 key={feature.title}
                 className={`card p-6 md:p-8 border border-slate-100 transition-all duration-300 relative ${
                   isClickable

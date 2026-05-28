@@ -243,7 +243,7 @@ export default function LoginPage() {
   return (
     <>
       <Toaster position="top-right" />
-      <div className="min-h-screen flex">
+      <div data-testid="login-page" className="min-h-screen flex">
         {/* Left Panel - Brand Showcase */}
         <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 flex-col items-center justify-center p-12 relative overflow-hidden">
           {/* Background decoration */}
@@ -312,8 +312,9 @@ export default function LoginPage() {
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-2 mb-8 border-b border-neutral-200">
+            <div data-testid="login-tabs" className="flex gap-2 mb-8 border-b border-neutral-200">
               <button
+                data-testid="login-tab-email"
                 onClick={() => {
                   setActiveTab("email");
                   setEmailError("");
@@ -329,6 +330,7 @@ export default function LoginPage() {
                 Email Login
               </button>
               <button
+                data-testid="login-tab-otp"
                 onClick={() => {
                   setActiveTab("otp");
                   setEmailError("");
@@ -347,13 +349,19 @@ export default function LoginPage() {
 
             {/* Email Login Tab */}
             {activeTab === "email" && (
-              <form onSubmit={handleEmailLogin} className="space-y-4">
+              <form
+                data-testid="login-email-form"
+                onSubmit={handleEmailLogin}
+                className="space-y-4"
+              >
                 <div>
                   <label className="block text-sm font-medium text-neutral-700 mb-2">
                     Email Address
                   </label>
                   <input
+                    data-testid="login-email-input"
                     type="email"
+                    name="email"
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
@@ -368,7 +376,7 @@ export default function LoginPage() {
                     placeholder="your@company.com"
                   />
                   {emailError && (
-                    <p className="text-red-600 text-sm mt-1">{emailError}</p>
+                    <p data-testid="login-email-error" className="text-red-600 text-sm mt-1">{emailError}</p>
                   )}
                 </div>
 
@@ -378,7 +386,9 @@ export default function LoginPage() {
                   </label>
                   <div className="relative">
                     <input
+                      data-testid="login-password-input"
                       type={showPassword ? "text" : "password"}
+                      name="password"
                       value={password}
                       onChange={(e) => {
                         setPassword(e.target.value);
@@ -392,6 +402,7 @@ export default function LoginPage() {
                       placeholder="••••••••"
                     />
                     <button
+                      data-testid="login-password-toggle"
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-600 hover:text-neutral-900"
@@ -404,13 +415,14 @@ export default function LoginPage() {
                     </button>
                   </div>
                   {passwordError && (
-                    <p className="text-red-600 text-sm mt-1">{passwordError}</p>
+                    <p data-testid="login-password-error" className="text-red-600 text-sm mt-1">{passwordError}</p>
                   )}
                 </div>
 
                 <div className="flex items-center justify-between">
                   <label className="flex items-center gap-2">
                     <input
+                      data-testid="login-remember-me"
                       type="checkbox"
                       checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}
@@ -419,6 +431,7 @@ export default function LoginPage() {
                     <span className="text-sm text-neutral-600">Remember me</span>
                   </label>
                   <a
+                    data-testid="login-forgot-password-link"
                     href="/b2b/forgot-password"
                     className="text-sm text-primary hover:underline"
                   >
@@ -427,6 +440,7 @@ export default function LoginPage() {
                 </div>
 
                 <button
+                  data-testid="login-submit-button"
                   type="submit"
                   disabled={isLoading}
                   className="w-full py-3 bg-primary text-white font-semibold rounded-lg hover:bg-blue-900 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
@@ -439,7 +453,7 @@ export default function LoginPage() {
 
             {/* Mobile OTP Tab */}
             {activeTab === "otp" && (
-              <div className="space-y-4">
+              <div data-testid="login-otp-form" className="space-y-4">
                 {!otpSent ? (
                   <>
                     <div>
@@ -447,7 +461,9 @@ export default function LoginPage() {
                         Phone Number
                       </label>
                       <input
+                        data-testid="login-phone-input"
                         type="tel"
+                        name="phone"
                         value={phone}
                         onChange={(e) => {
                           setPhone(e.target.value);
@@ -462,13 +478,14 @@ export default function LoginPage() {
                         placeholder="+919876543210"
                       />
                       {phoneError && (
-                        <p className="text-red-600 text-sm mt-1">
+                        <p data-testid="login-phone-error" className="text-red-600 text-sm mt-1">
                           {phoneError}
                         </p>
                       )}
                     </div>
 
                     <button
+                      data-testid="login-send-otp-button"
                       onClick={handleSendOTP}
                       disabled={isLoading}
                       className="w-full py-3 bg-primary text-white font-semibold rounded-lg hover:bg-blue-900 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
@@ -496,9 +513,10 @@ export default function LoginPage() {
                       <label className="block text-sm font-medium text-neutral-700 mb-3">
                         Enter 6-digit OTP
                       </label>
-                      <div className="flex gap-2 justify-between">
+                      <div data-testid="login-otp-input-group" className="flex gap-2 justify-between">
                         {otp.map((digit, index) => (
                           <input
+                            data-testid={`login-otp-digit-${index}`}
                             key={index}
                             ref={(el) => {
                               otpRefs.current[index] = el;
@@ -524,6 +542,7 @@ export default function LoginPage() {
                     )}
 
                     <button
+                      data-testid="login-resend-otp-button"
                       onClick={() => {
                         setOtpSent(false);
                         setOtp(["", "", "", "", "", ""]);

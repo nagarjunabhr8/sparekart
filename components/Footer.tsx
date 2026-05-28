@@ -3,11 +3,11 @@ import { Mail, Phone, Facebook, Twitter, Instagram } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="bg-neutral-900 text-white">
+    <footer data-testid="footer" className="bg-neutral-900 text-white">
       <div className="container-app py-12 md:py-16">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           {/* Company Info */}
-          <div>
+          <div data-testid="footer-company">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <span className="font-bold">S</span>
@@ -34,7 +34,7 @@ export default function Footer() {
           </div>
 
           {/* B2C Links */}
-          <div>
+          <div data-testid="footer-b2c-links">
             <h4 className="font-semibold mb-4">For Customers</h4>
             <ul className="space-y-2 text-sm">
               <li>
@@ -61,7 +61,7 @@ export default function Footer() {
           </div>
 
           {/* B2B Links */}
-          <div>
+          <div data-testid="footer-b2b-links">
             <h4 className="font-semibold mb-4">For Businesses</h4>
             <ul className="space-y-2 text-sm">
               <li>
@@ -88,7 +88,7 @@ export default function Footer() {
           </div>
 
           {/* Legal & Social */}
-          <div>
+          <div data-testid="footer-company-links">
             <h4 className="font-semibold mb-4">Company</h4>
             <ul className="space-y-2 text-sm mb-6">
               <li>

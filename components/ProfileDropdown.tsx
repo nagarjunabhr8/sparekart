@@ -34,8 +34,9 @@ export default function ProfileDropdown() {
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div data-testid="profile-dropdown" className="relative" ref={dropdownRef}>
       <button
+        data-testid="profile-dropdown-toggle"
         onClick={() => setIsOpen(!isOpen)}
         className="p-2 text-neutral-600 hover:text-primary transition-colors relative"
         title={isAuthenticated ? user?.companyName : "Account"}
@@ -50,18 +51,22 @@ export default function ProfileDropdown() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-lg shadow-lg z-50">
+        <div
+          data-testid="profile-dropdown-menu"
+          className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-lg shadow-lg z-50"
+        >
           {isAuthenticated ? (
             <>
-              <div className="p-4 border-b border-slate-200">
-                <p className="text-sm font-semibold text-neutral-900">
+              <div data-testid="profile-user-info" className="p-4 border-b border-slate-200">
+                <p data-testid="profile-company-name" className="text-sm font-semibold text-neutral-900">
                   {user?.companyName}
                 </p>
-                <p className="text-xs text-neutral-600">{user?.email}</p>
+                <p data-testid="profile-email" className="text-xs text-neutral-600">{user?.email}</p>
               </div>
 
               <nav className="divide-y divide-slate-200">
                 <button
+                  data-testid="profile-menu-account-settings"
                   onClick={() => {
                     router.push("/b2b/account");
                     setIsOpen(false);
@@ -71,6 +76,7 @@ export default function ProfileDropdown() {
                   Account Settings
                 </button>
                 <button
+                  data-testid="profile-menu-wishlist"
                   onClick={() => {
                     router.push("/b2b/account/wishlist");
                     setIsOpen(false);
@@ -82,7 +88,7 @@ export default function ProfileDropdown() {
                     My Wishlist
                   </span>
                   {wishlistCount > 0 && (
-                    <span className="bg-orange-500 text-white text-xs rounded-full px-2 py-0.5 font-bold">
+                    <span data-testid="profile-wishlist-count" className="bg-orange-500 text-white text-xs rounded-full px-2 py-0.5 font-bold">
                       {wishlistCount}
                     </span>
                   )}
@@ -91,6 +97,7 @@ export default function ProfileDropdown() {
 
               <div className="p-3 border-t border-slate-200">
                 <button
+                  data-testid="profile-menu-logout"
                   onClick={handleLogout}
                   className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-50 text-red-700 hover:bg-red-100 rounded-lg transition-colors font-medium text-sm"
                 >
@@ -109,6 +116,7 @@ export default function ProfileDropdown() {
               </div>
               <div className="p-3 space-y-2">
                 <button
+                  data-testid="profile-menu-login"
                   onClick={() => {
                     router.push("/b2b/login");
                     setIsOpen(false);
@@ -119,6 +127,7 @@ export default function ProfileDropdown() {
                   Login
                 </button>
                 <button
+                  data-testid="profile-menu-register"
                   onClick={() => {
                     router.push("/b2b/register");
                     setIsOpen(false);

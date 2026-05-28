@@ -54,7 +54,7 @@ const trustFeatures = [
 
 export default function TrustSection() {
   return (
-    <section className="bg-neutral-50 py-12 md:py-16 border-b border-neutral-200">
+    <section data-testid="b2c-trust-section" className="bg-neutral-50 py-12 md:py-16 border-b border-neutral-200">
       <div className="container-app">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-neutral-900 mb-2">
@@ -65,11 +65,12 @@ export default function TrustSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div data-testid="b2c-trust-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {trustFeatures.map((feature) => {
             const Icon = feature.icon;
+            const slug = feature.title.toLowerCase().replace(/\s+/g, "-");
             return (
-              <div key={feature.title} className="card p-6 text-center">
+              <div data-testid={`b2c-trust-feature-${slug}`} key={feature.title} className="card p-6 text-center">
                 <Icon size={40} className={`${feature.color} mx-auto mb-4`} />
                 <h3 className="font-semibold text-neutral-900 text-lg mb-2">
                   {feature.title}

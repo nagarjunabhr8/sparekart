@@ -87,7 +87,7 @@ export default function WishlistPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div data-testid="account-wishlist-page" className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-neutral-900">My Wishlist</h1>
@@ -139,6 +139,8 @@ export default function WishlistPage() {
 
           return (
             <div
+              data-testid={`wishlist-item-${item.id}`}
+              data-wishlist-item-id={item.id}
               key={item.id}
               className="card border border-slate-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
             >

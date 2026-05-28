@@ -102,12 +102,12 @@ export default function SecurityPage() {
   return (
     <>
       <Toaster position="top-right" />
-      <div className="space-y-6">
+      <div data-testid="account-security-page" className="space-y-6">
         {/* Change Password */}
         <div className="bg-white rounded-lg border border-slate-200 p-6">
           <h2 className="text-2xl font-bold text-neutral-900 mb-6">Change Password</h2>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-md">
+          <form data-testid="account-change-password-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-md">
             <div>
               <label className="block text-sm font-medium text-neutral-700 mb-1">
                 Current Password

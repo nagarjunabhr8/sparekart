@@ -92,17 +92,18 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div data-testid="orders-page" className="min-h-screen bg-slate-50">
       {/* Header */}
       <div className="bg-white border-b border-slate-200">
         <div className="container-app py-6 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-neutral-900">My Orders</h1>
-            <p className="text-neutral-600 text-sm mt-1">
+            <p data-testid="orders-count" className="text-neutral-600 text-sm mt-1">
               {filteredOrders.length} order{filteredOrders.length !== 1 ? "s" : ""} found
             </p>
           </div>
           <Link
+            data-testid="orders-new-order-link"
             href="/b2b/catalog"
             className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-colors font-medium"
           >
@@ -113,10 +114,10 @@ export default function OrdersPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white border-b border-slate-200 sticky top-16 z-20">
+      <div data-testid="orders-filters" className="bg-white border-b border-slate-200 sticky top-16 z-20">
         <div className="container-app py-4 space-y-4">
           {/* Status Tabs */}
-          <div className="flex flex-wrap gap-2 md:gap-3">
+          <div data-testid="orders-status-tabs" className="flex flex-wrap gap-2 md:gap-3">
             {[
               { label: "All", value: "all" as const },
               { label: "Active", value: "pending" as const, filterType: "active" },
@@ -125,6 +126,7 @@ export default function OrdersPage() {
               { label: "Bulk Quotes", value: "confirmed" as const, filterType: "bulk" },
             ].map((tab) => (
               <button
+                data-testid={`orders-status-tab-${tab.value}`}
                 key={tab.value}
                 onClick={() => handleStatusChange(tab.value === "all" ? "all" : (tab.value as OrderStatus))}
                 className={`px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
@@ -141,6 +143,7 @@ export default function OrdersPage() {
           {/* Search and Date Filters */}
           <div className="flex flex-col md:flex-row gap-3">
             <input
+              data-testid="orders-search-input"
               type="text"
               placeholder="Search by Order ID or part name..."
               value={filters.search}
@@ -148,12 +151,14 @@ export default function OrdersPage() {
               className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
             />
             <input
+              data-testid="orders-start-date"
               type="date"
               value={filters.startDate}
               onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
               className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
             />
             <input
+              data-testid="orders-end-date"
               type="date"
               value={filters.endDate}
               onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
@@ -166,7 +171,7 @@ export default function OrdersPage() {
       {/* Table or Empty State */}
       <div className="container-app py-8">
         {filteredOrders.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-lg border border-slate-200">
+          <div data-testid="orders-empty-state" className="text-center py-16 bg-white rounded-lg border border-slate-200">
             <div className="text-6xl mb-4">📦</div>
             <h3 className="text-2xl font-bold text-neutral-900 mb-2">No orders found</h3>
             <p className="text-neutral-600 max-w-md mx-auto">
@@ -176,7 +181,7 @@ export default function OrdersPage() {
         ) : (
           <>
             {/* Desktop Table View */}
-            <div className="hidden md:block bg-white rounded-lg border border-slate-200 overflow-hidden">
+            <div data-testid="orders-table" className="hidden md:block bg-white rounded-lg border border-slate-200 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
@@ -203,7 +208,7 @@ export default function OrdersPage() {
                   </thead>
                   <tbody>
                     {currentOrders.map((order) => (
-                      <tr key={order.id} className="border-b border-slate-200 hover:bg-slate-50">
+                      <tr data-testid={`order-row-${order.id}`} data-order-id={order.id} key={order.id} className="border-b border-slate-200 hover:bg-slate-50">
                         <td className="px-6 py-4">
                           <span className="font-semibold text-neutral-900">{order.orderNumber}</span>
                         </td>
@@ -240,6 +245,7 @@ export default function OrdersPage() {
                         <td className="px-6 py-4">
                           <div className="flex gap-2 justify-end">
                             <button
+                              data-testid={`order-row-download-${order.id}`}
                               onClick={() => handleDownloadInvoice(order)}
                               title="Download Invoice"
                               className="p-2 text-neutral-600 hover:text-primary hover:bg-slate-100 rounded transition-colors"
@@ -247,6 +253,7 @@ export default function OrdersPage() {
                               <Download size={18} />
                             </button>
                             <Link
+                              data-testid={`order-row-details-${order.id}`}
                               href={`/b2b/orders/${order.id}`}
                               title="View Details"
                               className="p-2 text-neutral-600 hover:text-primary hover:bg-slate-100 rounded transition-colors"
@@ -255,6 +262,7 @@ export default function OrdersPage() {
                             </Link>
                             {getStatusVariants(order.status) && (
                               <button
+                                data-testid={`order-row-track-${order.id}`}
                                 onClick={() => {
                                   setSelectedOrder(order);
                                   setTrackingOpen(true);
@@ -266,6 +274,7 @@ export default function OrdersPage() {
                               </button>
                             )}
                             <button
+                              data-testid={`order-row-reorder-${order.id}`}
                               onClick={() => {
                                 setSelectedOrder(order);
                                 setReorderOpen(true);
@@ -285,9 +294,9 @@ export default function OrdersPage() {
             </div>
 
             {/* Mobile Card View */}
-            <div className="md:hidden space-y-4">
+            <div data-testid="orders-mobile-list" className="md:hidden space-y-4">
               {currentOrders.map((order) => (
-                <div key={order.id} className="bg-white rounded-lg border border-slate-200 p-4">
+                <div data-testid={`order-card-${order.id}`} data-order-id={order.id} key={order.id} className="bg-white rounded-lg border border-slate-200 p-4">
                   <div className="flex justify-between items-start mb-3">
                     <div>
                       <h3 className="font-semibold text-neutral-900">{order.orderNumber}</h3>

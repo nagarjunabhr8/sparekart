@@ -105,7 +105,7 @@ export default function PaymentMethodsPage() {
   return (
     <>
       <Toaster position="top-right" />
-      <div className="space-y-6">
+      <div data-testid="account-payment-page" className="space-y-6">
         {/* Credit Terms Widget */}
         <div className="bg-gradient-to-r from-primary to-blue-800 rounded-lg p-6 text-white">
           <h3 className="text-lg font-semibold mb-4">Credit Facilities</h3>

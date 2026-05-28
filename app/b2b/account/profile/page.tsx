@@ -283,7 +283,7 @@ export default function ProfilePage() {
   return (
     <>
       <Toaster position="top-right" />
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-neutral-50 py-8">
+      <div data-testid="account-profile-page" className="min-h-screen bg-gradient-to-br from-blue-50 to-neutral-50 py-8">
         <div className="max-w-4xl mx-auto px-4">
           {/* Header */}
           <div className="mb-8">

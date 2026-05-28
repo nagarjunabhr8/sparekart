@@ -37,7 +37,7 @@ export default function B2BHeroSection() {
   };
 
   return (
-    <section className="bg-gradient-to-r from-primary via-primary to-blue-800 text-white py-16 md:py-24 lg:py-32">
+    <section data-testid="b2b-hero-section" className="bg-gradient-to-r from-primary via-primary to-blue-800 text-white py-16 md:py-24 lg:py-32">
       <div className="container-app">
         <div className="max-w-3xl">
           <div className="inline-flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full mb-6 backdrop-blur-sm">
@@ -70,6 +70,7 @@ export default function B2BHeroSection() {
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative">
               <motion.button
+                data-testid="b2b-hero-start-shopping"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.5 }}
@@ -96,6 +97,7 @@ export default function B2BHeroSection() {
             </div>
 
             <button
+              data-testid="b2b-hero-expert-help"
               onClick={() => setShowSupportModal(true)}
               className="inline-flex items-center justify-center gap-2 border-2 border-white hover:bg-white/10 text-white font-semibold py-4 px-8 rounded-lg transition-colors"
             >
@@ -104,7 +106,7 @@ export default function B2BHeroSection() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-4 md:gap-8 mt-16 pt-12 border-t border-white/20">
+          <div data-testid="b2b-hero-stats" className="grid grid-cols-3 gap-4 md:gap-8 mt-16 pt-12 border-t border-white/20">
             <div>
               <p className="text-3xl md:text-4xl font-bold">50K+</p>
               <p className="text-blue-100 text-sm md:text-base">Parts in Stock</p>

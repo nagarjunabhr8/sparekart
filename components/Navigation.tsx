@@ -59,11 +59,18 @@ export default function Navigation({ portal }: NavigationProps) {
         ];
 
   return (
-    <nav className="sticky top-0 z-40 bg-white border-b border-neutral-200 shadow-sm">
+    <nav
+      data-testid={`navbar-${portal}`}
+      className="sticky top-0 z-40 bg-white border-b border-neutral-200 shadow-sm"
+    >
       <div className="container-app">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href={portal === "b2c" ? "/b2c" : "/b2b"} className="flex items-center gap-3">
+          <Link
+            data-testid="navbar-logo"
+            href={portal === "b2c" ? "/b2c" : "/b2b"}
+            className="flex items-center gap-3"
+          >
             <div className="relative w-12 h-12 flex-shrink-0">
               <Image
                 src="/images/logo.png"
@@ -85,11 +92,13 @@ export default function Navigation({ portal }: NavigationProps) {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
+          <div data-testid="navbar-links-desktop" className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => {
               const isActive = pathname === link.href || (link.href !== "/b2c" && link.href !== "/b2b" && pathname.startsWith(link.href));
+              const slug = link.label.toLowerCase().replace(/\s+/g, "-");
               return (
                 <Link
+                  data-testid={`navlink-${slug}`}
                   key={link.href}
                   href={link.href}
                   className={`transition-colors font-medium text-sm ${
@@ -109,6 +118,7 @@ export default function Navigation({ portal }: NavigationProps) {
             {portal === "b2b" && (
               <>
                 <button
+                  data-testid="navbar-cart-button"
                   onClick={() => setCartDrawerOpen(true)}
                   className={`relative p-2 text-neutral-600 hover:text-primary transition-colors ${
                     animate ? "animate-bounce" : ""
@@ -117,6 +127,7 @@ export default function Navigation({ portal }: NavigationProps) {
                   <ShoppingCart size={20} />
                   {cartItems > 0 && (
                     <span
+                      data-testid="navbar-cart-count"
                       className={`absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold transition-transform ${
                         animate ? "scale-125" : "scale-100"
                       }`}
@@ -131,6 +142,7 @@ export default function Navigation({ portal }: NavigationProps) {
 
             {/* Mobile Menu Button */}
             <button
+              data-testid="navbar-mobile-toggle"
               onClick={() => setIsOpen(!isOpen)}
               className="md:hidden p-2"
             >
@@ -145,11 +157,16 @@ export default function Navigation({ portal }: NavigationProps) {
 
         {/* Mobile Navigation */}
         {mounted && isOpen && (
-          <div className="md:hidden border-t border-neutral-200 py-4 space-y-3">
+          <div
+            data-testid="navbar-links-mobile"
+            className="md:hidden border-t border-neutral-200 py-4 space-y-3"
+          >
             {navLinks.map((link) => {
                 const isActive = pathname === link.href || (link.href !== "/b2c" && link.href !== "/b2b" && pathname.startsWith(link.href));
+                const slug = link.label.toLowerCase().replace(/\s+/g, "-");
                 return (
                   <Link
+                    data-testid={`navlink-mobile-${slug}`}
                     key={link.href}
                     href={link.href}
                     className={`block font-medium py-2 pl-3 border-l-4 transition-colors ${

@@ -28,7 +28,7 @@ const categories = [
 
 export default function CategoriesGrid() {
   return (
-    <section className="bg-neutral-50 py-12 md:py-16 border-b border-neutral-200">
+    <section data-testid="b2c-categories-section" className="bg-neutral-50 py-12 md:py-16 border-b border-neutral-200">
       <div className="container-app">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-neutral-900 mb-2">
@@ -39,11 +39,13 @@ export default function CategoriesGrid() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div data-testid="b2c-categories-grid" className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {categories.map((category) => {
             const Icon = category.icon;
+            const slug = category.name.toLowerCase().replace(/\s+/g, "-");
             return (
               <Link
+                data-testid={`b2c-category-${slug}`}
                 key={category.name}
                 href={`/b2c/products?category=${category.name}`}
                 className="card p-4 hover:shadow-md transition-all duration-300 hover:-translate-y-1 cursor-pointer"

@@ -10,7 +10,7 @@ export default function OrderHistoryPage() {
   const totalSpent = mockOrders.reduce((sum, o) => sum + o.total, 0);
 
   return (
-    <div className="space-y-6">
+    <div data-testid="account-history-page" className="space-y-6">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-lg border border-slate-200 p-6">
