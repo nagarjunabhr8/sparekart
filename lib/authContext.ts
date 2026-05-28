@@ -1,4 +1,7 @@
-// Simple auth context for demo purposes
+"use client";
+
+import { useAuthStore } from "@/stores/authStore";
+
 export interface AuthUser {
   id: string;
   name: string;
@@ -8,25 +11,30 @@ export interface AuthUser {
 }
 
 export const useAuth = () => {
-  if (typeof window === "undefined") {
-    return { user: null, isAuthenticated: false, login: () => {}, logout: () => {} };
-  }
+  const user = useAuthStore((state) => state.user);
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const storeLogin = useAuthStore((state) => state.login);
+  const storeLogout = useAuthStore((state) => state.logout);
 
-  const getUser = (): AuthUser | null => {
-    const stored = localStorage.getItem("b2b_user");
-    return stored ? JSON.parse(stored) : null;
+  const mappedUser: AuthUser | null = user
+    ? {
+        id: user.userId,
+        name: user.businessName || user.email,
+        email: user.email,
+        companyName: user.businessName || "",
+        gstNumber: "",
+      }
+    : null;
+
+  return {
+    user: mappedUser,
+    isAuthenticated: isLoggedIn,
+    login: (u: AuthUser) =>
+      storeLogin({
+        userId: u.id,
+        email: u.email,
+        businessName: u.companyName,
+      }),
+    logout: storeLogout,
   };
-
-  const login = (user: AuthUser) => {
-    localStorage.setItem("b2b_user", JSON.stringify(user));
-  };
-
-  const logout = () => {
-    localStorage.removeItem("b2b_user");
-  };
-
-  const user = getUser();
-  const isAuthenticated = !!user;
-
-  return { user, isAuthenticated, login, logout };
 };

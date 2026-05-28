@@ -55,10 +55,7 @@ export default function Navigation({ portal }: NavigationProps) {
                 { href: "/b2b/orders", label: "Orders" },
                 { href: "/b2b/account", label: "Account" },
               ]
-            : [
-                { href: "/b2b/login", label: "Login" },
-                { href: "/b2b/register", label: "Register" },
-              ]),
+            : []),
         ];
 
   return (
@@ -129,30 +126,6 @@ export default function Navigation({ portal }: NavigationProps) {
                   )}
                 </button>
                 <ProfileDropdown />
-                {mounted && !isAuthenticated && (
-                  <div className="flex md:hidden items-center gap-1.5">
-                    <Link
-                      href="/b2b/login"
-                      className={`text-xs font-semibold px-2.5 py-1.5 rounded-md border transition-colors ${
-                        pathname.startsWith("/b2b/login")
-                          ? "bg-secondary text-white border-secondary"
-                          : "text-neutral-700 hover:text-secondary border-neutral-300 bg-white"
-                      }`}
-                    >
-                      Login
-                    </Link>
-                    <Link
-                      href="/b2b/register"
-                      className={`text-xs font-semibold px-2.5 py-1.5 rounded-md border transition-colors ${
-                        pathname.startsWith("/b2b/register")
-                          ? "bg-secondary text-white border-secondary"
-                          : "text-neutral-700 hover:text-secondary border-neutral-300 bg-white"
-                      }`}
-                    >
-                      Register
-                    </Link>
-                  </div>
-                )}
               </>
             )}
 
@@ -173,16 +146,7 @@ export default function Navigation({ portal }: NavigationProps) {
         {/* Mobile Navigation */}
         {mounted && isOpen && (
           <div className="md:hidden border-t border-neutral-200 py-4 space-y-3">
-            {navLinks
-              .filter(
-                (link) =>
-                  !(
-                    portal === "b2b" &&
-                    !isAuthenticated &&
-                    (link.href === "/b2b/login" || link.href === "/b2b/register")
-                  )
-              )
-              .map((link) => {
+            {navLinks.map((link) => {
                 const isActive = pathname === link.href || (link.href !== "/b2c" && link.href !== "/b2b" && pathname.startsWith(link.href));
                 return (
                   <Link

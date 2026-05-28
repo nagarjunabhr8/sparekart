@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { User, Heart, LogOut, LogIn } from "lucide-react";
+import { User, Heart, LogOut, LogIn, UserPlus } from "lucide-react";
 import { useAuth } from "@/lib/authContext";
 import { useWishlistStore } from "@/stores/wishlistStore";
 
@@ -37,8 +37,9 @@ export default function ProfileDropdown() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 text-neutral-600 hover:text-primary transition-colors hidden sm:block relative"
-        title={isAuthenticated ? user?.companyName : "Login"}
+        className="p-2 text-neutral-600 hover:text-primary transition-colors relative"
+        title={isAuthenticated ? user?.companyName : "Account"}
+        aria-label="Account menu"
       >
         <User size={20} />
         {wishlistCount > 0 && isAuthenticated && (
@@ -99,18 +100,36 @@ export default function ProfileDropdown() {
               </div>
             </>
           ) : (
-            <div className="p-4">
-              <button
-                onClick={() => {
-                  router.push("/b2b/login");
-                  setIsOpen(false);
-                }}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white hover:bg-blue-900 rounded-lg transition-colors font-medium text-sm"
-              >
-                <LogIn size={16} />
-                Sign In
-              </button>
-            </div>
+            <>
+              <div className="px-4 py-3 border-b border-slate-200">
+                <p className="text-sm font-semibold text-neutral-900">Account</p>
+                <p className="text-xs text-neutral-600">
+                  Sign in or create a business account
+                </p>
+              </div>
+              <div className="p-3 space-y-2">
+                <button
+                  onClick={() => {
+                    router.push("/b2b/login");
+                    setIsOpen(false);
+                  }}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white hover:bg-blue-900 rounded-lg transition-colors font-medium text-sm"
+                >
+                  <LogIn size={16} />
+                  Login
+                </button>
+                <button
+                  onClick={() => {
+                    router.push("/b2b/register");
+                    setIsOpen(false);
+                  }}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-primary text-primary hover:bg-primary hover:text-white rounded-lg transition-colors font-medium text-sm"
+                >
+                  <UserPlus size={16} />
+                  Register
+                </button>
+              </div>
+            </>
           )}
         </div>
       )}

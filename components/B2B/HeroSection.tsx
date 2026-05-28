@@ -5,17 +5,23 @@ import { ArrowRight, Zap, ShoppingBag } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
 import { useCartStore } from "@/stores/cartStore";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SupportModal from "./SupportModal";
 
 export default function B2BHeroSection() {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { getItemCount } = useCartStore();
   const [showTooltip, setShowTooltip] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const cartItemsCount = getItemCount();
+  const displayName = mounted && isAuthenticated ? user?.companyName || user?.name : null;
 
   const handleStartShopping = () => {
     if (typeof window !== "undefined" && (window as any).analytics) {
@@ -40,6 +46,15 @@ export default function B2BHeroSection() {
               Trusted by 500+ workshops across India
             </span>
           </div>
+
+          {displayName && (
+            <p
+              data-testid="welcome-greeting"
+              className="text-lg md:text-xl text-blue-50 mb-3 font-medium"
+            >
+              Welcome back, <span className="font-bold text-accent">{displayName}</span> 👋
+            </p>
+          )}
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
             Genuine Auto Parts for

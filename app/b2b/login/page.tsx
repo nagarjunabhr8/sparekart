@@ -28,6 +28,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   // OTP state
   const [phone, setPhone] = useState("+919876543210");
@@ -89,8 +90,17 @@ export default function LoginPage() {
   const handleEmailLogin = async (e: any) => {
     e.preventDefault();
 
-    if (!validateEmail(email) || !password) {
-      toast.error("Please fill in all fields");
+    const emailValid = validateEmail(email);
+    let passwordValid = true;
+    if (!password) {
+      setPasswordError("Password is required");
+      passwordValid = false;
+    } else {
+      setPasswordError("");
+    }
+
+    if (!emailValid || !passwordValid) {
+      toast.error("Please fix the errors below");
       return;
     }
 
@@ -105,18 +115,21 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        toast.error(data.error || "Login failed");
+        const msg = data.error || "Login failed";
+        toast.error(msg);
         if (data.code === "EMAIL_UNVERIFIED") {
           setEmailError("Email not verified. Please verify your email first.");
-        }
-        if (data.code === "ACCOUNT_SUSPENDED") {
+        } else if (data.code === "ACCOUNT_SUSPENDED") {
           setEmailError("Account suspended. Contact support.");
+        } else if (response.status === 401) {
+          setEmailError("Invalid email or password");
+          setPasswordError("Invalid email or password");
         }
         return;
       }
 
       login(data.user);
-      toast.success("Login successful!");
+      toast.success(`Welcome back, ${data.user.businessName || data.user.email}!`);
       router.push("/b2b");
     } catch (error) {
       toast.error("Failed to login. Please try again.");
@@ -304,6 +317,7 @@ export default function LoginPage() {
                 onClick={() => {
                   setActiveTab("email");
                   setEmailError("");
+                  setPasswordError("");
                   setPhoneError("");
                 }}
                 className={`pb-3 px-4 font-medium text-sm border-b-2 transition-colors ${
@@ -318,6 +332,7 @@ export default function LoginPage() {
                 onClick={() => {
                   setActiveTab("otp");
                   setEmailError("");
+                  setPasswordError("");
                   setPhoneError("");
                 }}
                 className={`pb-3 px-4 font-medium text-sm border-b-2 transition-colors ${
@@ -365,8 +380,15 @@ export default function LoginPage() {
                     <input
                       type={showPassword ? "text" : "password"}
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        if (passwordError) setPasswordError("");
+                      }}
+                      className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-colors ${
+                        passwordError
+                          ? "border-red-500 bg-red-50"
+                          : "border-neutral-300"
+                      }`}
                       placeholder="••••••••"
                     />
                     <button
@@ -381,6 +403,9 @@ export default function LoginPage() {
                       )}
                     </button>
                   </div>
+                  {passwordError && (
+                    <p className="text-red-600 text-sm mt-1">{passwordError}</p>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-between">
