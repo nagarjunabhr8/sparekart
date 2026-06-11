@@ -30,7 +30,7 @@ export default function ProfileDropdown() {
   const handleLogout = () => {
     logout();
     setIsOpen(false);
-    router.push("/b2b/login");
+    router.push("/login");
   };
 
   return (
@@ -68,7 +68,7 @@ export default function ProfileDropdown() {
                 <button
                   data-testid="profile-menu-account-settings"
                   onClick={() => {
-                    router.push("/b2b/account");
+                    router.push("/account");
                     setIsOpen(false);
                   }}
                   className="w-full px-4 py-3 text-left text-sm font-medium text-neutral-700 hover:bg-slate-50 transition-colors"
@@ -78,7 +78,7 @@ export default function ProfileDropdown() {
                 <button
                   data-testid="profile-menu-wishlist"
                   onClick={() => {
-                    router.push("/b2b/account/wishlist");
+                    router.push("/account/wishlist");
                     setIsOpen(false);
                   }}
                   className="w-full px-4 py-3 text-left text-sm font-medium text-neutral-700 hover:bg-slate-50 transition-colors flex items-center justify-between"
@@ -118,7 +118,7 @@ export default function ProfileDropdown() {
                 <button
                   data-testid="profile-menu-login"
                   onClick={() => {
-                    router.push("/b2b/login");
+                    router.push("/login");
                     setIsOpen(false);
                   }}
                   className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white hover:bg-blue-900 rounded-lg transition-colors font-medium text-sm"
@@ -129,7 +129,7 @@ export default function ProfileDropdown() {
                 <button
                   data-testid="profile-menu-register"
                   onClick={() => {
-                    router.push("/b2b/register");
+                    router.push("/register");
                     setIsOpen(false);
                   }}
                   className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-primary text-primary hover:bg-primary hover:text-white rounded-lg transition-colors font-medium text-sm"

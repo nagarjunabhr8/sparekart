@@ -185,7 +185,7 @@ export default function CartDrawer({ isOpen, onClose, userPlan = "Professional" 
                 <div className="space-y-2 pt-4">
                   <Link
                     data-testid="cart-checkout-button"
-                    href="/b2b/checkout"
+                    href="/checkout"
                     className="block w-full py-3 bg-primary text-white rounded-lg hover:bg-orange-600 font-semibold text-center transition-colors"
                     onClick={onClose}
                   >

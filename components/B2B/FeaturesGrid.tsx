@@ -51,7 +51,7 @@ export default function B2BFeaturesGrid() {
   const [showCostControlModal, setShowCostControlModal] = useState(false);
 
   const handleBulkPricingClick = () => {
-    router.push("/b2b/pricing");
+    router.push("/pricing");
   };
 
   const handleCostControlClick = () => {
@@ -59,11 +59,11 @@ export default function B2BFeaturesGrid() {
   };
 
   const handleDedicatedSupportClick = () => {
-    router.push("/b2b/support");
+    router.push("/support");
   };
 
   const handleQuickOnboardingClick = () => {
-    router.push("/b2b/register");
+    router.push("/register");
   };
 
   return (

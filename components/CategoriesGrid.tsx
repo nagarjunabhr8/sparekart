@@ -47,7 +47,7 @@ export default function CategoriesGrid() {
               <Link
                 data-testid={`b2c-category-${slug}`}
                 key={category.name}
-                href={`/b2c/products?category=${category.name}`}
+                href={`/shop/products?category=${category.name}`}
                 className="card p-4 hover:shadow-md transition-all duration-300 hover:-translate-y-1 cursor-pointer"
               >
                 <div className="flex flex-col items-center text-center">

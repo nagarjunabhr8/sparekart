@@ -174,7 +174,7 @@ export default function BulkPricingCalculator() {
             </div>
           ) : (
             <Link
-              href="/b2b/signup"
+              href="/signup"
               className="block w-full py-4 bg-primary hover:bg-blue-900 text-white font-bold rounded-lg text-center transition-colors"
             >
               Get This Deal — Register as B2B

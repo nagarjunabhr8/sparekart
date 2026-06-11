@@ -42,18 +42,18 @@ export default function Navigation({ portal }: NavigationProps) {
   const navLinks =
     portal === "b2c"
       ? [
-          { href: "/b2c", label: "Home" },
-          { href: "/b2c/products", label: "Browse Parts" },
-          { href: "/b2c/orders", label: "My Orders" },
-          { href: "/b2c/support", label: "Support" },
+          { href: "/shop", label: "Home" },
+          { href: "/shop/products", label: "Browse Parts" },
+          { href: "/shop/orders", label: "My Orders" },
+          { href: "/shop/support", label: "Support" },
         ]
       : [
-          { href: "/b2b", label: "Home" },
+          { href: "/", label: "Home" },
           ...(showAuthLinks
             ? [
-                { href: "/b2b/catalog", label: "Catalog" },
-                { href: "/b2b/orders", label: "Orders" },
-                { href: "/b2b/account", label: "Account" },
+                { href: "/catalog", label: "Catalog" },
+                { href: "/orders", label: "Orders" },
+                { href: "/account", label: "Account" },
               ]
             : []),
         ];
@@ -68,7 +68,7 @@ export default function Navigation({ portal }: NavigationProps) {
           {/* Logo */}
           <Link
             data-testid="navbar-logo"
-            href={portal === "b2c" ? "/b2c" : "/b2b"}
+            href={portal === "b2c" ? "/shop" : "/"}
             className="flex items-center gap-3"
           >
             <div className="relative w-12 h-12 flex-shrink-0">
@@ -94,7 +94,7 @@ export default function Navigation({ portal }: NavigationProps) {
           {/* Desktop Navigation */}
           <div data-testid="navbar-links-desktop" className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => {
-              const isActive = pathname === link.href || (link.href !== "/b2c" && link.href !== "/b2b" && pathname.startsWith(link.href));
+              const isActive = pathname === link.href || (link.href !== "/shop" && link.href !== "/" && pathname.startsWith(link.href));
               const slug = link.label.toLowerCase().replace(/\s+/g, "-");
               return (
                 <Link
@@ -162,7 +162,7 @@ export default function Navigation({ portal }: NavigationProps) {
             className="md:hidden border-t border-neutral-200 py-4 space-y-3"
           >
             {navLinks.map((link) => {
-                const isActive = pathname === link.href || (link.href !== "/b2c" && link.href !== "/b2b" && pathname.startsWith(link.href));
+                const isActive = pathname === link.href || (link.href !== "/shop" && link.href !== "/" && pathname.startsWith(link.href));
                 const slug = link.label.toLowerCase().replace(/\s+/g, "-");
                 return (
                   <Link

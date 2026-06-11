@@ -110,7 +110,7 @@ export default function PricingTiers() {
               </div>
 
               <Link
-                href="/b2b/signup"
+                href="/signup"
                 className={`btn-primary text-center font-semibold py-3 rounded-lg transition-colors ${
                   tier.highlight
                     ? "bg-primary hover:bg-orange-700 text-white"

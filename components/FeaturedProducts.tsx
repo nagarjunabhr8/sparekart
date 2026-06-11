@@ -91,7 +91,7 @@ export default function FeaturedProducts() {
           </div>
           <Link
             data-testid="b2c-featured-view-all-link"
-            href="/b2c/products"
+            href="/shop/products"
             className="text-primary font-semibold hover:text-orange-700 transition-colors hidden md:block"
           >
             View All →
@@ -104,7 +104,7 @@ export default function FeaturedProducts() {
               data-testid={`b2c-featured-product-${product.id}`}
               data-product-id={product.id}
               key={product.id}
-              href={`/b2c/products/${product.id}`}
+              href={`/shop/products/${product.id}`}
               className="card overflow-hidden hover:shadow-lg transition-all duration-300 group"
             >
               {/* Product Image */}
@@ -200,7 +200,7 @@ export default function FeaturedProducts() {
         </div>
 
         <div className="text-center mt-8 md:hidden">
-          <Link href="/b2c/products" className="btn-primary bg-primary hover:bg-orange-700">
+          <Link href="/shop/products" className="btn-primary bg-primary hover:bg-orange-700">
             View All Products
           </Link>
         </div>

@@ -18,14 +18,14 @@ export default function Hero() {
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
               data-testid="b2c-hero-start-shopping"
-              href="/b2c/products"
+              href="/shop/products"
               className="btn-primary bg-primary hover:bg-orange-700 flex items-center justify-center gap-2"
             >
               Start Shopping <ArrowRight size={18} />
             </Link>
             <Link
               data-testid="b2c-hero-expert-help"
-              href="/b2c/support"
+              href="/shop/support"
               className="btn-outline bg-white/10 border-white text-white hover:bg-white/20"
             >
               Get Expert Help

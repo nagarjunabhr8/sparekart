@@ -115,7 +115,7 @@ export default function SmartPartSearch() {
     setResults([]);
 
     // Update URL and trigger filtering
-    router.push(`/b2b/catalog?q=${encodeURIComponent(searchTerm)}`);
+    router.push(`/catalog?q=${encodeURIComponent(searchTerm)}`);
   };
 
   const handleVoiceSearch = async () => {
@@ -162,7 +162,7 @@ export default function SmartPartSearch() {
     setResults([]);
     setIsOpen(false);
     searchInputRef.current?.focus();
-    router.push("/b2b/catalog");
+    router.push("/catalog");
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

@@ -100,7 +100,7 @@ export default function PartCard({
   };
 
   return (
-    <Link href={`/b2b/catalog/${id}`}>
+    <Link href={`/catalog/${id}`}>
       <div className="relative bg-white border border-slate-200 rounded-lg overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer h-full flex flex-col hover:border-slate-300">
         {/* Image Container */}
         <div className="relative bg-slate-100 aspect-square flex items-center justify-center overflow-hidden">

@@ -38,22 +38,22 @@ export default function Footer() {
             <h4 className="font-semibold mb-4">For Customers</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/b2c" className="text-neutral-400 hover:text-primary">
+                <Link href="/shop" className="text-neutral-400 hover:text-primary">
                   Shop Now
                 </Link>
               </li>
               <li>
-                <Link href="/b2c/products" className="text-neutral-400 hover:text-primary">
+                <Link href="/shop/products" className="text-neutral-400 hover:text-primary">
                   Browse Catalog
                 </Link>
               </li>
               <li>
-                <Link href="/b2c/orders" className="text-neutral-400 hover:text-primary">
+                <Link href="/shop/orders" className="text-neutral-400 hover:text-primary">
                   Track Orders
                 </Link>
               </li>
               <li>
-                <Link href="/b2c/support" className="text-neutral-400 hover:text-primary">
+                <Link href="/shop/support" className="text-neutral-400 hover:text-primary">
                   Support Center
                 </Link>
               </li>
@@ -65,22 +65,22 @@ export default function Footer() {
             <h4 className="font-semibold mb-4">For Businesses</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/b2b" className="text-neutral-400 hover:text-primary">
+                <Link href="/" className="text-neutral-400 hover:text-primary">
                   Bulk Orders
                 </Link>
               </li>
               <li>
-                <Link href="/b2b/catalog" className="text-neutral-400 hover:text-primary">
+                <Link href="/catalog" className="text-neutral-400 hover:text-primary">
                   Catalog
                 </Link>
               </li>
               <li>
-                <Link href="/b2b/account" className="text-neutral-400 hover:text-primary">
+                <Link href="/account" className="text-neutral-400 hover:text-primary">
                   Account
                 </Link>
               </li>
               <li>
-                <Link href="/b2b" className="text-neutral-400 hover:text-primary">
+                <Link href="/pricing" className="text-neutral-400 hover:text-primary">
                   Pricing Plans
                 </Link>
               </li>

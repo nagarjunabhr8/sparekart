@@ -139,7 +139,7 @@ export default function B2BPricingPlans() {
               <div className="p-6 md:p-8 border-t border-slate-200 bg-slate-50">
                 <Link
                   data-testid={`b2b-pricing-cta-${plan.name.toLowerCase()}`}
-                  href={`/b2b/signup?plan=${plan.name.toLowerCase()}`}
+                  href={`/signup?plan=${plan.name.toLowerCase()}`}
                   className={`block w-full py-3 px-4 rounded-lg font-semibold text-center transition-colors ${
                     plan.ctaVariant === "primary"
                       ? "bg-primary hover:bg-blue-900 text-white"
@@ -159,7 +159,7 @@ export default function B2BPricingPlans() {
             Not sure which plan is right for you?
           </p>
           <Link
-            href="/b2b/contact-sales"
+            href="/contact-sales"
             className="inline-flex items-center gap-2 text-primary hover:text-blue-900 font-semibold"
           >
             Schedule a consultation with our sales team →

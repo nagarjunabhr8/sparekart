@@ -32,7 +32,7 @@ export default function B2BHeroSection() {
     if (catalogSection) {
       catalogSection.scrollIntoView({ behavior: "smooth" });
     } else {
-      router.push("/b2b/catalog");
+      router.push("/catalog");
     }
   };
 
