@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { CartProvider } from "@/lib/cartContext";
+import { ShopAuthProvider } from "@/lib/shopAuthContext";
 
 export const metadata: Metadata = {
   title: "SpareKart - Genuine Automobile Spare Parts",
@@ -17,7 +19,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-neutral-50">{children}</body>
+      <body className="bg-neutral-50">
+        <ShopAuthProvider>
+          <CartProvider>{children}</CartProvider>
+        </ShopAuthProvider>
+      </body>
     </html>
   );
 }

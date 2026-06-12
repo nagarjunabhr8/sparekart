@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Star, ShoppingCart } from "lucide-react";
+import { Star } from "lucide-react";
+import AddToCartButton from "@/components/shop/AddToCartButton";
 
 interface Product {
   id: string;
@@ -189,10 +190,18 @@ export default function FeaturedProducts() {
                   >
                     {product.inStock ? "✓ In Stock" : "Out of Stock"}
                   </p>
-                  <button data-testid={`b2c-featured-add-to-cart-${product.id}`} className="w-full btn-primary bg-primary hover:bg-orange-700 text-sm flex items-center justify-center gap-2 py-2">
-                    <ShoppingCart size={16} />
-                    Add to Cart
-                  </button>
+                  <AddToCartButton
+                    testId={`b2c-featured-add-to-cart-${product.id}`}
+                    disabled={!product.inStock}
+                    item={{
+                      productId: product.id,
+                      name: product.name,
+                      price: product.price,
+                      image: product.image,
+                      seller: product.seller,
+                      category: product.category,
+                    }}
+                  />
                 </div>
               </div>
             </Link>

@@ -7,8 +7,10 @@ import { useState, useEffect } from "react";
 import { Menu, X, ShoppingCart } from "lucide-react";
 import { useAuth } from "@/lib/authContext";
 import { useCartStore } from "@/stores/cartStore";
+import { useCart } from "@/lib/cartContext";
 import CartDrawer from "./B2B/CartDrawer";
 import ProfileDropdown from "./ProfileDropdown";
+import ShopProfileDropdown from "./shop/ShopProfileDropdown";
 
 interface NavigationProps {
   portal: "b2c" | "b2b";
@@ -23,18 +25,22 @@ export default function Navigation({ portal }: NavigationProps) {
   const { isAuthenticated } = useAuth();
   const { getItemCount } = useCartStore();
   const cartItems = mounted ? getItemCount() : 0;
+  // Independent B2C cart (React Context) — separate from the B2B Zustand store.
+  const { totalItems: b2cTotalItems } = useCart();
+  const b2cCartItems = mounted ? b2cTotalItems : 0;
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    if (cartItems > 0) {
+    const count = portal === "b2c" ? b2cCartItems : cartItems;
+    if (count > 0) {
       setAnimate(true);
       const timer = setTimeout(() => setAnimate(false), 600);
       return () => clearTimeout(timer);
     }
-  }, [cartItems]);
+  }, [cartItems, b2cCartItems, portal]);
 
   // Only treat user as authenticated after client-side mount to avoid hydration mismatch
   const showAuthLinks = mounted && isAuthenticated;
@@ -115,6 +121,29 @@ export default function Navigation({ portal }: NavigationProps) {
 
           {/* Right Actions */}
           <div className="flex items-center gap-2 sm:gap-4">
+            {portal === "b2c" && (
+              <Link
+                data-testid="navbar-cart-link"
+                href="/shop/cart"
+                aria-label="Cart"
+                className={`relative p-2 text-neutral-600 hover:text-primary transition-colors ${
+                  animate ? "animate-bounce" : ""
+                }`}
+              >
+                <ShoppingCart size={20} />
+                {b2cCartItems > 0 && (
+                  <span
+                    data-testid="navbar-cart-count"
+                    className="absolute top-1 right-1 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold"
+                  >
+                    {b2cCartItems}
+                  </span>
+                )}
+              </Link>
+            )}
+
+            {portal === "b2c" && <ShopProfileDropdown />}
+
             {portal === "b2b" && (
               <>
                 <button
