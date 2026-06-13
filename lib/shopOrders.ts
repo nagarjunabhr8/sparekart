@@ -1,5 +1,5 @@
-// B2C customer orders — mock data. Separate from the B2B order data
-// (lib/mockOrders.ts); this is only used by the /shop/orders pages.
+// B2C customer orders. Mock seed data + localStorage-backed placed orders.
+// Separate from the B2B order data (lib/mockOrders.ts).
 
 export type OrderStatus = "Pending" | "Shipped" | "Delivered" | "Cancelled";
 
@@ -10,101 +10,168 @@ export interface ShopOrderProduct {
   price: number;
   image: string;
   category: string;
+  seller: string;
 }
 
 export interface ShopOrder {
   id: string; // e.g. "SK-2024-001"
   date: string; // ISO date, e.g. "2024-01-05"
   status: OrderStatus;
-  product: ShopOrderProduct;
-  seller: string;
+  items: ShopOrderProduct[];
   total: number;
+  shippingAddress?: string;
+  paymentMethod?: string;
 }
 
 const PART_IMAGE =
   "https://images.unsplash.com/photo-1486262715619-67b519e0edd0?w=300&h=300&fit=crop";
+
+const STORED_ORDERS_KEY = "shop_orders";
+const LAST_ORDER_KEY = "shop_last_order";
 
 export const mockShopOrders: ShopOrder[] = [
   {
     id: "SK-2024-001",
     date: "2024-01-05",
     status: "Delivered",
-    product: {
-      productId: "3",
-      name: "Brake Pad Set (Brembo)",
-      qty: 1,
-      price: 1299,
-      image: PART_IMAGE,
-      category: "Brakes",
-    },
-    seller: "Premium Auto Parts",
+    items: [
+      {
+        productId: "3",
+        name: "Brake Pad Set (Brembo)",
+        qty: 1,
+        price: 1299,
+        image: PART_IMAGE,
+        category: "Brakes",
+        seller: "Premium Auto Parts",
+      },
+    ],
     total: 1299,
   },
   {
     id: "SK-2024-002",
     date: "2024-01-12",
     status: "Shipped",
-    product: {
-      productId: "4",
-      name: "Spark Plugs (NGK)",
-      qty: 2,
-      price: 599,
-      image: PART_IMAGE,
-      category: "Engine Parts",
-    },
-    seller: "OEM Supply Co",
+    items: [
+      {
+        productId: "4",
+        name: "Spark Plugs (NGK)",
+        qty: 2,
+        price: 599,
+        image: PART_IMAGE,
+        category: "Engine Parts",
+        seller: "OEM Supply Co",
+      },
+    ],
     total: 1198,
   },
   {
     id: "SK-2024-003",
     date: "2024-01-14",
     status: "Pending",
-    product: {
-      productId: "1",
-      name: "Engine Oil Filter (Bosch)",
-      qty: 3,
-      price: 349,
-      image: PART_IMAGE,
-      category: "Filters",
-    },
-    seller: "AutoPro Store",
+    items: [
+      {
+        productId: "1",
+        name: "Engine Oil Filter (Bosch)",
+        qty: 3,
+        price: 349,
+        image: PART_IMAGE,
+        category: "Filters",
+        seller: "AutoPro Store",
+      },
+    ],
     total: 1047,
   },
   {
     id: "SK-2024-004",
     date: "2023-12-28",
     status: "Delivered",
-    product: {
-      productId: "2",
-      name: "Air Intake Filter (Mann)",
-      qty: 1,
-      price: 299,
-      image: PART_IMAGE,
-      category: "Air Filters",
-    },
-    seller: "TrueParts India",
+    items: [
+      {
+        productId: "2",
+        name: "Air Intake Filter (Mann)",
+        qty: 1,
+        price: 299,
+        image: PART_IMAGE,
+        category: "Air Filters",
+        seller: "TrueParts India",
+      },
+    ],
     total: 299,
   },
   {
     id: "SK-2024-005",
     date: "2023-12-20",
     status: "Cancelled",
-    product: {
-      productId: "5",
-      name: "Clutch Plate (LuK)",
-      qty: 1,
-      price: 2499,
-      image: PART_IMAGE,
-      category: "Clutch",
-    },
-    seller: "ClutchTech India",
+    items: [
+      {
+        productId: "5",
+        name: "Clutch Plate (LuK)",
+        qty: 1,
+        price: 2499,
+        image: PART_IMAGE,
+        category: "Clutch",
+        seller: "ClutchTech India",
+      },
+    ],
     total: 2499,
   },
 ];
 
+// ---- Stored (placed) orders ----
+
+export function getStoredOrders(): ShopOrder[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(STORED_ORDERS_KEY);
+    return raw ? (JSON.parse(raw) as ShopOrder[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveOrder(order: ShopOrder): void {
+  if (typeof window === "undefined") return;
+  try {
+    const next = [order, ...getStoredOrders()];
+    localStorage.setItem(STORED_ORDERS_KEY, JSON.stringify(next));
+    localStorage.setItem(LAST_ORDER_KEY, JSON.stringify(order));
+  } catch {
+    /* ignore storage failures */
+  }
+}
+
+export function getLastOrder(): ShopOrder | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(LAST_ORDER_KEY);
+    return raw ? (JSON.parse(raw) as ShopOrder) : null;
+  } catch {
+    return null;
+  }
+}
+
+// Placed orders first (most recent), then the demo seed orders.
+export function getAllOrders(): ShopOrder[] {
+  return [...getStoredOrders(), ...mockShopOrders];
+}
+
+export function findOrder(id: string): ShopOrder | undefined {
+  return getAllOrders().find((o) => o.id === id);
+}
+
+// Kept for any server-side / static usage against the seed data.
 export function getShopOrderById(id: string): ShopOrder | undefined {
   return mockShopOrders.find((o) => o.id === id);
 }
+
+// Generate a readable order id, e.g. "SK-2026-481723".
+export function generateOrderId(): string {
+  const year = new Date().getFullYear();
+  const suffix = Date.now().toString().slice(-6);
+  return `SK-${year}-${suffix}`;
+}
+
+// ---- Helpers ----
 
 export function formatOrderDate(iso: string): string {
   const d = new Date(iso);

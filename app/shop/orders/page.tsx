@@ -1,12 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 import { Search, Copy, Package } from "lucide-react";
 import {
-  mockShopOrders,
+  getAllOrders,
   formatOrderDate,
   STATUS_BADGE,
   type OrderStatus,
@@ -38,12 +38,17 @@ export default function ShopOrdersPage() {
   const { addItem } = useCart();
 
   // Local copy so "Cancel Order" can mutate status without a backend.
-  const [orders, setOrders] = useState<ShopOrder[]>(mockShopOrders);
+  // Loaded after mount so placed orders (localStorage) are included.
+  const [orders, setOrders] = useState<ShopOrder[]>([]);
   const [tab, setTab] = useState<StatusTab>("All");
   const [query, setQuery] = useState("");
   const [range, setRange] = useState<DateRange>("all");
   const [customFrom, setCustomFrom] = useState("");
   const [customTo, setCustomTo] = useState("");
+
+  useEffect(() => {
+    setOrders(getAllOrders());
+  }, []);
 
   const filtered = useMemo(() => {
     const now = Date.now();
@@ -58,7 +63,7 @@ export default function ShopOrdersPage() {
         const q = query.toLowerCase();
         const match =
           o.id.toLowerCase().includes(q) ||
-          o.product.name.toLowerCase().includes(q);
+          o.items.some((it) => it.name.toLowerCase().includes(q));
         if (!match) return false;
       }
 
@@ -93,14 +98,16 @@ export default function ShopOrdersPage() {
   };
 
   const reorder = (order: ShopOrder) => {
-    addItem({
-      productId: order.product.productId,
-      name: order.product.name,
-      price: order.product.price,
-      image: order.product.image,
-      seller: order.seller,
-      category: order.product.category,
-      qty: order.product.qty,
+    order.items.forEach((it) => {
+      addItem({
+        productId: it.productId,
+        name: it.name,
+        price: it.price,
+        image: it.image,
+        seller: it.seller,
+        category: it.category,
+        qty: it.qty,
+      });
     });
     toast.success("✓ Added to cart");
   };
@@ -233,19 +240,26 @@ export default function ShopOrdersPage() {
               <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div className="flex items-center gap-4 min-w-0">
                   <img
-                    src={order.product.image}
-                    alt={order.product.name}
+                    src={order.items[0].image}
+                    alt={order.items[0].name}
                     className="w-16 h-16 rounded-lg object-cover bg-neutral-100 flex-shrink-0"
                   />
                   <div className="min-w-0">
                     <p className="font-semibold text-neutral-900 truncate">
-                      {order.product.name}
+                      {order.items[0].name}
+                      {order.items.length > 1 && (
+                        <span className="text-neutral-500 font-normal">
+                          {" "}+{order.items.length - 1} more item
+                          {order.items.length - 1 > 1 ? "s" : ""}
+                        </span>
+                      )}
                     </p>
                     <p className="text-sm text-neutral-600">
-                      Qty {order.product.qty} · ₹{order.product.price.toLocaleString("en-IN")}
+                      Qty {order.items[0].qty} · ₹
+                      {order.items[0].price.toLocaleString("en-IN")}
                     </p>
                     <p className="text-xs text-neutral-500">
-                      Sold by {order.seller}
+                      Sold by {order.items[0].seller}
                     </p>
                   </div>
                 </div>

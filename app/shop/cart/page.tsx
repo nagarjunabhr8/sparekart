@@ -140,12 +140,13 @@ export default function ShopCartPage() {
               <span>Total</span>
               <span data-testid="shop-cart-total">₹{totalPrice}</span>
             </div>
-            <button
+            <Link
               data-testid="shop-cart-checkout"
-              className="w-full btn-primary bg-primary hover:bg-orange-700 py-3"
+              href="/shop/checkout"
+              className="block text-center w-full btn-primary bg-primary hover:bg-orange-700 py-3"
             >
               Proceed to Checkout
-            </button>
+            </Link>
             <Link
               href="/shop/products"
               className="block text-center text-sm text-primary font-semibold mt-4 hover:text-orange-700"
