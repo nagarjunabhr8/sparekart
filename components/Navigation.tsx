@@ -134,7 +134,7 @@ export default function Navigation({ portal }: NavigationProps) {
                 {b2cCartItems > 0 && (
                   <span
                     data-testid="navbar-cart-count"
-                    className="absolute top-1 right-1 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold"
+                    className="absolute -top-0.5 -right-0.5 bg-primary text-white text-[10px] leading-none rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center font-bold ring-2 ring-white"
                   >
                     {b2cCartItems}
                   </span>
