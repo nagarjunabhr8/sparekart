@@ -4,15 +4,16 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
-import { Search, Copy, Package } from "lucide-react";
+import { Search, Copy, Package, Loader2, LogIn } from "lucide-react";
 import {
-  getAllOrders,
+  getOrdersForUser,
   formatOrderDate,
   STATUS_BADGE,
   type OrderStatus,
   type ShopOrder,
 } from "@/lib/shopOrders";
 import { useCart } from "@/lib/cartContext";
+import { useShopAuth } from "@/lib/shopAuthContext";
 
 type StatusTab = "All" | OrderStatus;
 type DateRange = "all" | "30d" | "6m" | "1y" | "custom";
@@ -36,9 +37,10 @@ const TAB_LABEL: Record<StatusTab, string> = {
 export default function ShopOrdersPage() {
   const router = useRouter();
   const { addItem } = useCart();
+  const { user, hydrated, isAuthenticated } = useShopAuth();
 
   // Local copy so "Cancel Order" can mutate status without a backend.
-  // Loaded after mount so placed orders (localStorage) are included.
+  // Loaded after mount, scoped to the signed-in user's orders only.
   const [orders, setOrders] = useState<ShopOrder[]>([]);
   const [tab, setTab] = useState<StatusTab>("All");
   const [query, setQuery] = useState("");
@@ -47,8 +49,12 @@ export default function ShopOrdersPage() {
   const [customTo, setCustomTo] = useState("");
 
   useEffect(() => {
-    setOrders(getAllOrders());
-  }, []);
+    if (isAuthenticated && user) {
+      setOrders(getOrdersForUser(user.email, user.phone));
+    } else {
+      setOrders([]);
+    }
+  }, [isAuthenticated, user]);
 
   const filtered = useMemo(() => {
     const now = Date.now();
@@ -113,6 +119,45 @@ export default function ShopOrdersPage() {
   };
 
   const goToDetail = (id: string) => router.push(`/shop/orders/${id}`);
+
+  if (!hydrated) {
+    return (
+      <div className="container-app py-16 flex justify-center">
+        <Loader2 className="animate-spin text-[#EA580C]" size={32} />
+      </div>
+    );
+  }
+
+  // Orders are per-user — require sign-in to view them.
+  if (!isAuthenticated) {
+    return (
+      <div data-testid="shop-orders-signin" className="container-app py-16 text-center">
+        <div className="flex justify-center mb-4 text-neutral-300">
+          <Package size={64} />
+        </div>
+        <h1 className="text-2xl font-bold text-neutral-900 mb-2">
+          Sign in to view your orders
+        </h1>
+        <p className="text-neutral-600 mb-6">
+          Your orders are private to your account.
+        </p>
+        <div className="flex flex-wrap justify-center gap-3">
+          <Link
+            href="/shop/login?redirect=/shop/orders"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[#EA580C] text-white rounded-lg font-semibold hover:bg-orange-700"
+          >
+            <LogIn size={18} /> Sign In
+          </Link>
+          <Link
+            href="/shop/products"
+            className="px-6 py-3 border border-neutral-300 text-neutral-700 rounded-lg font-semibold hover:bg-neutral-50"
+          >
+            Browse Parts
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container-app py-8">

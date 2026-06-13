@@ -8,6 +8,7 @@ import { Menu, X, ShoppingCart } from "lucide-react";
 import { useAuth } from "@/lib/authContext";
 import { useCartStore } from "@/stores/cartStore";
 import { useCart } from "@/lib/cartContext";
+import { useShopAuth } from "@/lib/shopAuthContext";
 import CartDrawer from "./B2B/CartDrawer";
 import ProfileDropdown from "./ProfileDropdown";
 import ShopProfileDropdown from "./shop/ShopProfileDropdown";
@@ -28,6 +29,9 @@ export default function Navigation({ portal }: NavigationProps) {
   // Independent B2C cart (React Context) — separate from the B2B Zustand store.
   const { totalItems: b2cTotalItems } = useCart();
   const b2cCartItems = mounted ? b2cTotalItems : 0;
+  // B2C customer auth — used to gate the My Orders nav link to signed-in users.
+  const { isAuthenticated: shopAuthenticated } = useShopAuth();
+  const showShopOrders = mounted && shopAuthenticated;
 
   useEffect(() => {
     setMounted(true);
@@ -50,7 +54,9 @@ export default function Navigation({ portal }: NavigationProps) {
       ? [
           { href: "/shop", label: "Home" },
           { href: "/shop/products", label: "Browse Parts" },
-          { href: "/shop/orders", label: "My Orders" },
+          ...(showShopOrders
+            ? [{ href: "/shop/orders", label: "My Orders" }]
+            : []),
           { href: "/shop/support", label: "Support" },
         ]
       : [

@@ -21,6 +21,9 @@ export interface ShopOrder {
   total: number;
   shippingAddress?: string;
   paymentMethod?: string;
+  // Owner identity so My Orders only shows the signed-in user's orders.
+  ownerEmail?: string;
+  ownerPhone?: string;
 }
 
 const PART_IMAGE =
@@ -29,7 +32,9 @@ const PART_IMAGE =
 const STORED_ORDERS_KEY = "shop_orders";
 const LAST_ORDER_KEY = "shop_last_order";
 
-export const mockShopOrders: ShopOrder[] = [
+// Seed/demo orders belong to the demo customer account (customer@sparekart.com
+// / 9876543210) so they only appear for that login — not for other users.
+const SEED_ORDERS: ShopOrder[] = ([
   {
     id: "SK-2024-001",
     date: "2024-01-05",
@@ -115,7 +120,23 @@ export const mockShopOrders: ShopOrder[] = [
     ],
     total: 2499,
   },
-];
+] as ShopOrder[]).map((o) => ({
+  ownerEmail: "customer@sparekart.com",
+  ownerPhone: "9876543210",
+  ...o,
+}));
+
+export const mockShopOrders: ShopOrder[] = SEED_ORDERS;
+
+// Match orders to the signed-in user by email or phone.
+export function getOrdersForUser(email?: string, phone?: string): ShopOrder[] {
+  const e = email?.toLowerCase();
+  return getAllOrders().filter((o) => {
+    const byEmail = !!e && !!o.ownerEmail && o.ownerEmail.toLowerCase() === e;
+    const byPhone = !!phone && !!o.ownerPhone && o.ownerPhone === phone;
+    return byEmail || byPhone;
+  });
+}
 
 // ---- Stored (placed) orders ----
 

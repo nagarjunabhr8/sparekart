@@ -230,6 +230,9 @@ export default function ShopCheckoutPage() {
       total: totalPrice,
       shippingAddress: formatAddress(finalAddress),
       paymentMethod: paymentLabel,
+      // Tie the order to the buyer so My Orders is scoped per user.
+      ownerEmail: user?.email,
+      ownerPhone: user?.phone || finalAddress.phone,
     };
 
     placedRef.current = true;
