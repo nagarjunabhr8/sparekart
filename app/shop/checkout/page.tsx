@@ -65,7 +65,11 @@ export default function ShopCheckoutPage() {
   const [payment, setPayment] = useState<PaymentMethod>("UPI");
   const [upiId, setUpiId] = useState("");
   const [cardNumber, setCardNumber] = useState("");
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+
+  const markTouched = (field: string) =>
+    setTouched((t) => ({ ...t, [field]: true }));
 
   useEffect(() => {
     setMounted(true);
@@ -112,6 +116,47 @@ export default function ShopCheckoutPage() {
     [addresses, selectedAddressId]
   );
 
+  // Live validation — recomputed on every change so messages clear as soon as
+  // a field becomes valid, and the Place Order button reflects overall validity.
+  const validation = useMemo<{
+    errors: Record<string, string>;
+    address?: Address;
+  }>(() => {
+    const e: Record<string, string> = {};
+    let address: Address | undefined;
+    const useNew = showNewAddress || addresses.length === 0;
+
+    if (useNew) {
+      if (!newAddr.name.trim()) e.name = "Required";
+      if (!/^[6-9]\d{9}$/.test(newAddr.phone)) e.phone = "Valid 10-digit number";
+      if (!newAddr.line1.trim()) e.line1 = "Required";
+      if (!newAddr.city.trim()) e.city = "Required";
+      if (!newAddr.state) e.state = "Required";
+      if (!/^\d{6}$/.test(newAddr.pin)) e.pin = "6-digit PIN";
+      if (Object.keys(e).length === 0) address = { ...newAddr };
+    } else {
+      address = selectedAddress;
+      if (!address) e.address = "Please select a delivery address";
+    }
+
+    if (payment === "UPI" && !/^[\w.\-]+@[\w]+$/.test(upiId)) {
+      e.upi = "Enter a valid UPI ID (e.g. name@bank)";
+    }
+    if (payment === "Card" && !/^\d{16}$/.test(cardNumber.replace(/\s/g, ""))) {
+      e.card = "Enter a 16-digit card number";
+    }
+
+    return { errors: e, address };
+  }, [
+    showNewAddress,
+    addresses,
+    newAddr,
+    selectedAddress,
+    payment,
+    upiId,
+    cardNumber,
+  ]);
+
   if (!mounted || !hydrated) {
     return (
       <div className="container-app py-16 flex justify-center">
@@ -133,46 +178,29 @@ export default function ShopCheckoutPage() {
       .filter(Boolean)
       .join(", ")} (${a.phone})`;
 
-  const validate = (): { ok: boolean; address?: Address } => {
-    const e: Record<string, string> = {};
-    let address: Address | undefined;
+  // Show a field error only after the field is touched or a submit attempt.
+  const showErr = (field: string) =>
+    (submitAttempted || touched[field]) && validation.errors[field]
+      ? validation.errors[field]
+      : undefined;
 
-    if (showNewAddress || addresses.length === 0) {
-      if (!newAddr.name.trim()) e.name = "Required";
-      if (!/^[6-9]\d{9}$/.test(newAddr.phone)) e.phone = "Valid 10-digit number";
-      if (!newAddr.line1.trim()) e.line1 = "Required";
-      if (!newAddr.city.trim()) e.city = "Required";
-      if (!newAddr.state) e.state = "Required";
-      if (!/^\d{6}$/.test(newAddr.pin)) e.pin = "6-digit PIN";
-      if (!e.name && !e.phone && !e.line1 && !e.city && !e.state && !e.pin) {
-        address = { ...newAddr, id: Date.now().toString() };
-      }
-    } else {
-      address = selectedAddress;
-      if (!address) e.address = "Please select a delivery address";
-    }
-
-    if (payment === "UPI" && !/^[\w.\-]+@[\w]+$/.test(upiId)) {
-      e.upi = "Enter a valid UPI ID (e.g. name@bank)";
-    }
-    if (payment === "Card" && !/^\d{16}$/.test(cardNumber.replace(/\s/g, ""))) {
-      e.card = "Enter a 16-digit card number";
-    }
-
-    setErrors(e);
-    return { ok: Object.keys(e).length === 0, address };
-  };
+  const isValid = Object.keys(validation.errors).length === 0;
 
   const placeOrder = async () => {
-    const { ok, address } = validate();
-    if (!ok || !address) return;
+    setSubmitAttempted(true);
+    if (!isValid || !validation.address) return;
+
+    const useNew = showNewAddress || addresses.length === 0;
+    const finalAddress: Address = useNew
+      ? { ...validation.address, id: Date.now().toString() }
+      : validation.address;
 
     // Persist a freshly added address so it shows up in the profile too.
-    if ((showNewAddress || addresses.length === 0) && address) {
+    if (useNew) {
       try {
         const next = [
           ...addresses,
-          { ...address, isDefault: addresses.length === 0 },
+          { ...finalAddress, isDefault: addresses.length === 0 },
         ];
         localStorage.setItem(ADDRESSES_KEY, JSON.stringify(next));
       } catch {
@@ -200,7 +228,7 @@ export default function ShopCheckoutPage() {
         seller: it.seller,
       })),
       total: totalPrice,
-      shippingAddress: formatAddress(address),
+      shippingAddress: formatAddress(finalAddress),
       paymentMethod: paymentLabel,
     };
 
@@ -249,7 +277,6 @@ export default function ShopCheckoutPage() {
                       onChange={() => {
                         setSelectedAddressId(a.id);
                         setShowNewAddress(false);
-                        setErrors({});
                       }}
                       className="mt-1 text-[#EA580C]"
                     />
@@ -275,10 +302,7 @@ export default function ShopCheckoutPage() {
             {addresses.length > 0 && !showNewAddress && (
               <button
                 data-testid="checkout-add-address"
-                onClick={() => {
-                  setShowNewAddress(true);
-                  setErrors({});
-                }}
+                onClick={() => setShowNewAddress(true)}
                 className="inline-flex items-center gap-1.5 text-sm font-medium text-[#EA580C] hover:underline"
               >
                 <Plus size={15} /> Deliver to a new address
@@ -288,41 +312,46 @@ export default function ShopCheckoutPage() {
             {(showNewAddress || addresses.length === 0) && (
               <div className="space-y-4 mt-2">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Inp label="Full Name" value={newAddr.name} error={errors.name}
-                    onChange={(v) => setNewAddr({ ...newAddr, name: v })} cls={inputClass} />
-                  <Inp label="Phone" value={newAddr.phone} error={errors.phone}
-                    onChange={(v) => setNewAddr({ ...newAddr, phone: v.replace(/\D/g, "").slice(0, 10) })} cls={inputClass} />
+                  <Inp label="Full Name" required value={newAddr.name} error={showErr("name")}
+                    onChange={(v) => setNewAddr({ ...newAddr, name: v })}
+                    onBlur={() => markTouched("name")} cls={inputClass} />
+                  <Inp label="Phone" required value={newAddr.phone} error={showErr("phone")}
+                    onChange={(v) => setNewAddr({ ...newAddr, phone: v.replace(/\D/g, "").slice(0, 10) })}
+                    onBlur={() => markTouched("phone")} cls={inputClass} />
                 </div>
-                <Inp label="Address Line 1" value={newAddr.line1} error={errors.line1}
-                  onChange={(v) => setNewAddr({ ...newAddr, line1: v })} cls={inputClass} />
+                <Inp label="Address Line 1" required value={newAddr.line1} error={showErr("line1")}
+                  onChange={(v) => setNewAddr({ ...newAddr, line1: v })}
+                  onBlur={() => markTouched("line1")} cls={inputClass} />
                 <Inp label="Address Line 2 (optional)" value={newAddr.line2 ?? ""}
                   onChange={(v) => setNewAddr({ ...newAddr, line2: v })} cls={inputClass} />
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <Inp label="City" value={newAddr.city} error={errors.city}
-                    onChange={(v) => setNewAddr({ ...newAddr, city: v })} cls={inputClass} />
+                  <Inp label="City" required value={newAddr.city} error={showErr("city")}
+                    onChange={(v) => setNewAddr({ ...newAddr, city: v })}
+                    onBlur={() => markTouched("city")} cls={inputClass} />
                   <div>
-                    <p className="text-sm font-medium text-neutral-700 mb-2">State</p>
+                    <p className="text-sm font-medium text-neutral-700 mb-2">
+                      State <span className="text-red-500">*</span>
+                    </p>
                     <select
                       value={newAddr.state}
                       onChange={(e) => setNewAddr({ ...newAddr, state: e.target.value })}
-                      className={inputClass(!!errors.state)}
+                      onBlur={() => markTouched("state")}
+                      className={inputClass(!!showErr("state"))}
                     >
                       <option value="">Select</option>
                       {INDIAN_STATES.map((s) => (
                         <option key={s} value={s}>{s}</option>
                       ))}
                     </select>
-                    {errors.state && <p className="text-red-600 text-sm mt-1">{errors.state}</p>}
+                    {showErr("state") && <p className="text-red-600 text-sm mt-1">{showErr("state")}</p>}
                   </div>
-                  <Inp label="PIN" value={newAddr.pin} error={errors.pin}
-                    onChange={(v) => setNewAddr({ ...newAddr, pin: v.replace(/\D/g, "").slice(0, 6) })} cls={inputClass} />
+                  <Inp label="PIN" required value={newAddr.pin} error={showErr("pin")}
+                    onChange={(v) => setNewAddr({ ...newAddr, pin: v.replace(/\D/g, "").slice(0, 6) })}
+                    onBlur={() => markTouched("pin")} cls={inputClass} />
                 </div>
                 {addresses.length > 0 && (
                   <button
-                    onClick={() => {
-                      setShowNewAddress(false);
-                      setErrors({});
-                    }}
+                    onClick={() => setShowNewAddress(false)}
                     className="text-sm text-neutral-500 hover:text-neutral-800"
                   >
                     Cancel
@@ -349,10 +378,7 @@ export default function ShopCheckoutPage() {
                     type="radio"
                     name="payment"
                     checked={payment === p.id}
-                    onChange={() => {
-                      setPayment(p.id);
-                      setErrors({});
-                    }}
+                    onChange={() => setPayment(p.id)}
                     className="mt-1 text-[#EA580C]"
                   />
                   <div className="text-sm">
@@ -365,14 +391,16 @@ export default function ShopCheckoutPage() {
 
             {payment === "UPI" && (
               <div className="mt-4">
-                <Inp label="UPI ID" value={upiId} error={errors.upi}
-                  onChange={setUpiId} cls={inputClass} placeholder="name@bank" />
+                <Inp label="UPI ID" required value={upiId} error={showErr("upi")}
+                  onChange={setUpiId} onBlur={() => markTouched("upi")}
+                  cls={inputClass} placeholder="name@bank" />
               </div>
             )}
             {payment === "Card" && (
               <div className="mt-4">
-                <Inp label="Card Number" value={cardNumber} error={errors.card}
+                <Inp label="Card Number" required value={cardNumber} error={showErr("card")}
                   onChange={(v) => setCardNumber(v.replace(/[^\d]/g, "").slice(0, 16))}
+                  onBlur={() => markTouched("card")}
                   cls={inputClass} placeholder="1234 5678 9012 3456" />
               </div>
             )}
@@ -420,8 +448,8 @@ export default function ShopCheckoutPage() {
             <button
               data-testid="checkout-place-order"
               onClick={placeOrder}
-              disabled={placing}
-              className="w-full py-3 bg-[#EA580C] text-white font-semibold rounded-lg hover:bg-orange-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+              disabled={placing || !isValid}
+              className="w-full py-3 bg-[#EA580C] text-white font-semibold rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
             >
               {placing && <Loader2 size={18} className="animate-spin" />}
               {placing ? "Placing order..." : "Place Order"}
@@ -443,23 +471,30 @@ function Inp({
   label,
   value,
   onChange,
+  onBlur,
   error,
+  required,
   cls,
   placeholder,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
+  onBlur?: () => void;
   error?: string;
+  required?: boolean;
   cls: (hasError: boolean) => string;
   placeholder?: string;
 }) {
   return (
     <div>
-      <p className="text-sm font-medium text-neutral-700 mb-2">{label}</p>
+      <p className="text-sm font-medium text-neutral-700 mb-2">
+        {label} {required && <span className="text-red-500">*</span>}
+      </p>
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onBlur={onBlur}
         placeholder={placeholder}
         className={cls(!!error)}
       />
