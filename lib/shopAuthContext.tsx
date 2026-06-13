@@ -30,6 +30,7 @@ interface ShopAuthValue {
   hydrated: boolean;
   isAuthenticated: boolean;
   login: (user: ShopUser) => void;
+  updateUser: (patch: Partial<ShopUser>) => void;
   logout: () => void;
 }
 
@@ -70,6 +71,19 @@ export function ShopAuthProvider({ children }: { children: ReactNode }) {
     setUser(next);
   }, []);
 
+  const updateUser = useCallback((patch: Partial<ShopUser>) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const next = { ...prev, ...patch };
+      try {
+        localStorage.setItem(SHOP_USER_KEY, JSON.stringify(next));
+      } catch {
+        /* ignore storage failures */
+      }
+      return next;
+    });
+  }, []);
+
   const logout = useCallback(() => {
     try {
       localStorage.removeItem(SHOP_USER_KEY);
@@ -86,6 +100,7 @@ export function ShopAuthProvider({ children }: { children: ReactNode }) {
         hydrated,
         isAuthenticated: !!user,
         login,
+        updateUser,
         logout,
       }}
     >

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 import { Search } from "lucide-react";
+import { brandModels } from "@/lib/shopData";
 
 interface SearchFilters {
   brand: string;
@@ -12,27 +13,6 @@ interface SearchFilters {
   fuelType: string;
   partCategory: string;
 }
-
-// Brand → Model mapping used to suggest models for the selected brand.
-const brandModels: Record<string, string[]> = {
-  Maruti: [
-    "Swift",
-    "Dzire",
-    "Baleno",
-    "Vitara Brezza",
-    "Wagon R",
-    "Alto",
-    "Ertiga",
-    "S-Cross",
-  ],
-  Hyundai: ["Creta", "i20", "Venue", "Verna", "Tucson", "Aura", "Grand i10"],
-  Tata: ["Nexon", "Harrier", "Safari", "Punch", "Tiago", "Tigor", "Altroz"],
-  Honda: ["City", "Amaze", "WR-V", "Jazz", "CR-V"],
-  Mahindra: ["Scorpio", "XUV700", "XUV300", "Thar", "Bolero"],
-  Toyota: ["Innova", "Fortuner", "Glanza", "Urban Cruiser", "Camry"],
-  Kia: ["Seltos", "Sonet", "Carnival", "EV6"],
-  Skoda: ["Octavia", "Superb", "Kushaq", "Slavia"],
-};
 
 export default function SmartPartsFinder() {
   const router = useRouter();
