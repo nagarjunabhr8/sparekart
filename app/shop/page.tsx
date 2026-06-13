@@ -3,6 +3,7 @@ import SmartPartsFinder from "@/components/SmartPartsFinder";
 import FeaturedProducts from "@/components/FeaturedProducts";
 import TrustSection from "@/components/TrustSection";
 import CategoriesGrid from "@/components/CategoriesGrid";
+import JoinCTA from "@/components/shop/JoinCTA";
 
 export default function B2CHome() {
   return (
@@ -11,6 +12,7 @@ export default function B2CHome() {
       <SmartPartsFinder />
       <CategoriesGrid />
       <FeaturedProducts />
+      <JoinCTA />
       <TrustSection />
     </div>
   );
